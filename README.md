@@ -2,8 +2,6 @@
 
 Dead Kittens (Grupo 19): Omar Naranjo Caprachi y Adrián Sobrado García
 
-Cube Carnage
-
 Cube Carnage es un juego donde debes sobrevivir oleadas de zombis cada 
 vez mayores que vienen a por ti en una arena, usando una selección de 
 armas y explosivos. Es un arcade de estilo minimalista donde el objetivo
