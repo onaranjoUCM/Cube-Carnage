@@ -7,7 +7,7 @@ coming for you in an arena, using a wide range of weapons and explosives.
 I'ts a **minimalistic-style, arcade game** where the objective is to stand
 as long as possible and enjoy the carnage in the meantime.
 
-![zombie](/img/zombie.png")
+![zombie](img/zombie.png "PJ")
 
 The game tries to simplify the zombie modes of other moder games such as
 Call of Duty, which usually are as popular al the "normal" mode or even more.
@@ -15,7 +15,7 @@ It will feature **various arenas** with walls and explosive barrels for an
 extra tactical level, and also **different weapons** for your choice (Rifle, 
 shotgun and grenades, more to come).
 
-![PJ](/img/pj.png")
+![PJ](img/pj.png "zombie")
 
 The top-down view allows you to see the **huge amount of enemies** coming from
 all directions and better enjoy the effects of the explosions. You will 
