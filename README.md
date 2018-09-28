@@ -1,17 +1,21 @@
 # Cube Carnage
 
-Dead Kitten Games: Omar Naranjo Caprachi y Adrián Sobrado García
+## Dead Kitten Games: Omar Naranjo Caprachi & Adrián Sobrado García
 
 Cube Carnage is a game where you must survive wave after wave of zombies
 coming for you in an arena, using a wide range of weapons and explosives.
 I'ts a minimalistic-style, arcade game wher the objective is to stand
 as long as possible and enjoy the carnage in the meantime.
 
+![alt text](img/zombie.png")
+
 The game tries to simplify the zombie modes of other moder games such as
 Call of Duty, which usually are as popular al the "normal" mode or even more.
 It will feature various arenas with walls and explosive barrels for an
 extra tactical level, and also three different weapons and more to come
 (Rifle, shotgun and grenades).
+
+![alt text](img/pj.png")
 
 The top-down view allows you to se the huge amount of enemies coming from
 all directions and better enjoy the effects of the explosions. You will 
