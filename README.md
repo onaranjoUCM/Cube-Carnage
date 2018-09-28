@@ -10,7 +10,7 @@ as long as possible and enjoy the carnage in the meantime.
 ![PJ](https://raw.githubusercontent.com/onaranjoUCM/Cube-Carnage/master/img/pj.PNG "PJ")
 
 The game tries to simplify the zombie modes of other moder games such as
-Call of Duty, which usually are as popular al the "normal" mode or even more.
+Call of Duty, which usually are as popular as the "normal" mode or even more.
 It will feature **various arenas** with walls and explosive barrels for an
 extra tactical level, and also **different weapons** for your choice (Rifle, 
 shotgun and grenades, more to come).
@@ -18,7 +18,7 @@ shotgun and grenades, more to come).
 ![zombie](https://raw.githubusercontent.com/onaranjoUCM/Cube-Carnage/master/img/zombie.PNG "zombie")
 
 The top-down view allows you to see the **huge amount of enemies** coming from
-all directions and better enjoy the effects of the explosions. You will 
+all directions and enjoy the effects of the explosions better. You will 
 control your character using the arrow keys and the spacebar so its
 really easy to play!.
 
