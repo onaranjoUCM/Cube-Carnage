@@ -1,6 +1,6 @@
 # Cube Carnage
 
-## Dead Kitten Games: Omar Naranjo Caprachi & Adrián Sobrado García
+## Dead Kitten Games: Omar Naranjo Caprachi
 
 **Cube Carnage** is a game where you must survive wave after wave of zombies
 coming for you in an arena, using a wide range of weapons and explosives.
