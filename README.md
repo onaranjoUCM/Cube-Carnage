@@ -1,31 +1,68 @@
-# Cube Carnage
+# Awesome game
 
-## Dead Kitten Games: Omar Naranjo Caprachi
+Awesome game by
+[gituser](https://github.com/gituser).
 
-**Cube Carnage** is a game where you must survive wave after wave of zombies
-coming for you in an arena, using a wide range of weapons and explosives.
-It's a **minimalistic-style, arcade game** where the objective is to stand
-as long as possible and enjoy the carnage in the meantime.
+Initial scaffolding generated with [generator-gamejam](https://github.com/belen-albeza/generator-gamejam/).
 
-![PJ](https://raw.githubusercontent.com/onaranjoUCM/Cube-Carnage/master/img/pj.PNG "PJ")
+## Installation
 
-The game tries to simplify the zombie modes of other moder games such as
-Call of Duty, which usually are as popular as the "normal" mode or even more.
-It will feature **various arenas** with walls and explosive barrels for an
-extra tactical level, and also **different weapons** for your choice (Rifle, 
-shotgun and grenades, more to come).
+### Requirements
 
-![zombie](https://raw.githubusercontent.com/onaranjoUCM/Cube-Carnage/master/img/zombie.PNG "zombie")
+This games uses [gulp](http://gulpjs.com/) for building and tasks automation.
 
-The top-down view allows you to see the **huge amount of enemies** coming from
-all directions and enjoy the effects of the explosions better. You will 
-control your character using the arrow keys and the spacebar so its
-really easy to play!.
+You can install gulp with npm:
 
-Zombies are (by now) the only enemy in the game, who will mindlessly chase
-the player trying to devour his brain before he **turns them into a bloody
-paste in the floor**. The longer the player survives, the more zombies will come.
+```
+npm install -g gulp
+```
 
-There is no way to win the game. The objective, as in most of the classic
-arcades, is to obtain the **highest score** by slaying zombies before being
-overrun. You will see your record score at the end of the game.
+### Build
+
+Clone this repository and install dependencies:
+
+```
+git clone gituser/awesome-game
+cd awesome-game
+npm install
+```
+
+To **build** the game, run the `dist` task from the project root:
+
+```
+gulp dist
+```
+
+The `dist` folder will contain a build of the game. You can then start a local server that serves this directory statically to play the game in local:
+
+```
+npm install -g http-server
+http-server dist
+```
+
+You can **clean up** the temporary files and the `dist` folder by running:
+
+```
+gulp clean
+```
+
+## Development
+
+This project uses [Browserify](http://browserify.org) to handle JavaScript modules.
+
+There is a task that will automatically run Browserify when a JavaScript file changes, and it will also reload the browser.
+
+```
+gulp run
+```
+
+
+
+
+
+You can deploy to **Github Pages** with the `deploy:ghpages` task, which will build the project and then push the `dist` folder in the `gh-pages` branch.
+
+```
+gulp deploy:ghpages
+```
+

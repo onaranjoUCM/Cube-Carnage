@@ -5,20 +5,16 @@
   "license": "CC-BY-NC-SA-4.0",
   "repository": "gituser/awesome-game",
   "dependencies": {
-    "browser-sync": "*",
     "browserify": "*",
+    "browser-sync": "*",
     "del": "*",
-    "generator-gamejam": "^1.2.2",
     "gulp": "*",
     "gulp-connect": "*",
     "gulp-gh-pages": "*",
     "gulp-util": "*",
-    "http-server": "^0.11.1",
-    "jslint": "^0.12.0",
     "merge-stream": "*",
     "phaser": "2.6.0",
     "vinyl-source-stream": "*",
-    "watchify": "*",
-    "yo": "^2.0.5"
+    "watchify": "*"
   }
 }
