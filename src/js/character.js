@@ -18,7 +18,7 @@ Character.prototype.die = function () { };
 
 // Player
 Player = function Player(game, position) {
-	Character.apply(this, [game, 'player', position, 5, 100]);
+	Character.apply(this, [game, 'player', position, 200, 100]);
 	this.keyboard = game.input.keyboard;
 }
 
@@ -28,19 +28,27 @@ Player.prototype.constructor = Character;
 Player.prototype.move = function () {
 	this.animations.play('walk');
 	if (this.keyboard.isDown(Phaser.Keyboard.A) || this.keyboard.isDown(Phaser.Keyboard.LEFT)) {
-		this.x -= this._speed;
+		this.body.velocity.x = -this._speed;
+		this.body.velocity.y = 0;
 		this.angle = -90;
 	} else if (this.keyboard.isDown(Phaser.Keyboard.D) || this.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
-		this.x += this._speed;
+		this.body.velocity.x = this._speed;
+		this.body.velocity.y = 0;
 		this.angle = 90;
+	} else {
+		this.body.velocity.x = 0;
 	}
 
 	if (this.keyboard.isDown(Phaser.Keyboard.W) || this.keyboard.isDown(Phaser.Keyboard.UP)) {
-		this.y -= this._speed;
+		this.body.velocity.x = 0;
+		this.body.velocity.y = -this._speed;
 		this.angle = 0;
 	} else if (this.keyboard.isDown(Phaser.Keyboard.S) || this.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-		this.y += this._speed;
+		this.body.velocity.x = 0;
+		this.body.velocity.y = this._speed;
 		this.angle = 180;
+	} else {
+		this.body.velocity.y = 0;
 	}
 
 	if (
@@ -62,8 +70,7 @@ Player.prototype.modifyHealth = function () { };
 Enemy = function Enemy(game, graphic, position, speed, health, score) {
 	Character.apply(this, [game, graphic, position, speed, health]);
 	this._score = score;
-	this._canAttack = true;
-	this._attackSpeed = 1000;
+	this._attackSpeed = 2000;
 	this._lastAttackTime = Date.now();
 }
 
@@ -71,34 +78,41 @@ Enemy.prototype = Object.create(Character.prototype);
 Enemy.prototype.constructor = Character;
 Enemy.prototype.move = function (player) {
 	this.animations.play('walk');
+	var distanceToPlayerX = Math.abs(this.x - player.x);
+	var distanceToPlayerY = Math.abs(this.y - player.y);
 
-	if (this.y > player.y) {
-		this.y -= this._speed;
-		this.angle = 0;
-	} else if (this.y < player.y) {
-		this.y += this._speed;
-		this.angle = 180;
-	}
-
-	if (this.x > player.x) {
-		this.x -= this._speed;
-		this.angle = -90;
-	} else if (this.x < player.x) {
-		this.x += this._speed;
-		this.angle = 90;
+	if (distanceToPlayerX > distanceToPlayerY) {
+			this.body.velocity.y = 0;
+		if (this.x > player.x) {
+			this.body.velocity.x = -this._speed;
+			this.angle = -90;
+		} else if (this.x < player.x) {
+			this.body.velocity.x = this._speed;
+			this.angle = 90;
+		}
+	} else {
+			this.body.velocity.x = 0;
+		if (this.y > player.y) {
+			this.body.velocity.y = -this._speed;
+			this.angle = 0;
+		} else if (this.y < player.y) {
+			this.body.velocity.y = this._speed;
+			this.angle = 180;
+		}
 	}
 };
 
 Enemy.prototype.attack = function () {
-	//if (Date.now() - this._lastAttackTime > this._attackSpeed) {
+	if (Date.now() - this._lastAttackTime > this._attackSpeed) {
+		this._lastAttackTime = Date.now();
 		this.sound = this.game.add.audio('zombieAttack');
 		this.sound.play();
-	//}
+	}
 };
 
 // Zombie
 Zombie = function Zombie(game, position) {
-	Enemy.apply(this, [game, 'zombie', position, 1, 10, 1]);
+	Enemy.apply(this, [game, 'zombie', position, 50, 10, 1]);
 }
 
 Zombie.prototype = Object.create(Enemy.prototype);
