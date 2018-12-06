@@ -15,6 +15,7 @@ Weapon.pistol = function (game) {
 	{
 		this.add(new Bullet(game, 'bullet'), true);
 	}
+	this.callAll('kill');
 	
 	return this;
 };

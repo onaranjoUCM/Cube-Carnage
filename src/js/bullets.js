@@ -19,3 +19,7 @@ Bullet.prototype.fire = function (x, y, angle, speed) {
 	this.game.physics.arcade.velocityFromAngle(angle, speed, this.body.velocity);
 	this.angle = angle;
 };
+
+Bullet.prototype.update = function () {
+	this.game.physics.arcade.collide(this.game, this);
+}
