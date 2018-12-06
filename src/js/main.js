@@ -60,8 +60,8 @@ var MenuScene = {
 		// TODO: load here the assets for the game
 		this.game.load.spritesheet('player', 'images/playerWalkingRifle.png', 131, 275);
 		this.game.load.spritesheet('zombie', 'images/zombieWalking.png', 183, 271);
-		this.game.load.image('zombi', 'images/zombie.png');
-
+		this.game.load.image('bullet', 'images/bullet.png');
+		
 		this.game.load.audio('gameMusic', 'audio/Humble_Match.ogg');
 		this.game.load.audio('pistolShot', 'audio/pistolShot.mp3');
 		this.game.load.audio('zombieAttack', 'audio/zombieAttack.mp3');

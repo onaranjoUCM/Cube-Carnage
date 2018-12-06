@@ -1,0 +1,2 @@
+[1129/100123.045:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1129/100125.515:ERROR:exception_snapshot_win.cc(88)] thread ID 7152 not found in process
