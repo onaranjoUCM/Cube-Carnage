@@ -22,7 +22,7 @@ Enemy.prototype.update = function() {
 	this.updateDirection(this.player);
 	this.game.physics.arcade.overlap(this.player, this, this.attack, null, this);
 	this.game.physics.arcade.collide(this.player, this);
-	if (this._health <= 0) {
+	if (this._currentHealth <= 0) {
 		this.kill();
 	}
 }
@@ -30,6 +30,7 @@ Enemy.prototype.update = function() {
 // Zombie
 Zombie = function Zombie(game, player, position) {
 	Enemy.apply(this, [game, player, 'zombie', position, 50, 10, 1]);
+	this.damage = 10;
 	
 	this.frame = 0;
 	this.anchor.setTo(0.5,0.5);
@@ -70,6 +71,7 @@ Zombie.prototype.updateDirection = function (player) {
 Zombie.prototype.attack = function () {
 	if (Date.now() - this._lastAttackTime > this._attackSpeed) {
 		this._lastAttackTime = Date.now();
+		this.player.modifyHealth(-this.damage);
 		this.sound = this.game.add.audio('zombieAttack');
 		this.sound.play();
 	}

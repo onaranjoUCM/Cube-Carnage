@@ -14,7 +14,7 @@ Bullet.prototype.constructor = Bullet;
 
 Bullet.prototype.fire = function (x, y, angle, speed) {
 	this.reset(x, y);
-	this.scale.set(1);
+	this.scale.set(0.5);
 	this.body.mass = 0.1;
 
 	this.game.physics.arcade.velocityFromAngle(angle, speed, this.body.velocity);

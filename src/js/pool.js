@@ -8,7 +8,8 @@ Pool.prototype.spawn = function (x, y) {
 	var entity = this._group.getFirstExists(false);
 	if (entity) {
 		entity.reset(x, y);
-		entity.scale.setTo(0.18, 0.18);
+		entity._currentHealth = entity._health;
+		entity.scale.setTo(0.12, 0.12);
 	}
 	return entity;
 }

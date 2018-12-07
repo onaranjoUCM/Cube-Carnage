@@ -12,7 +12,7 @@ Player = function Player(game, position) {
 	];
 	this.currentWeapon = 0;
 
-	this.scale.setTo(0.25,0.25);
+	this.scale.setTo(0.15,0.15);
 	this.frame = 0;
 	this.anchor.setTo(0.5,0.5);
 	this.animations.add('walk', [1, 2], 5, true);
