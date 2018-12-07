@@ -1,5 +1,5 @@
 Pool = function (game, entities) {
-	this._group = game.add.group();
+	this._group = game.add.physicsGroup(Phaser.Physics.ARCADE);
 	this._group.addMultiple(entities);
 	this._group.callAll('kill');
 }

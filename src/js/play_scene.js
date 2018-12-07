@@ -27,12 +27,18 @@ var PlayScene = {
 	},
 
 	update: function () {
-
+		this.game.physics.arcade.collide(this.enemies, this.enemies);
+		this.game.physics.arcade.collide(this.enemies, this.player.weapons[this.player.currentWeapon].hash, this.hit);
 	}, 
 
 	spawnZombie: function() {
 		this.spawnPoint = this.spawnPoints[Math.floor(Math.random() * this.spawnPoints.length)];
 		this.enemiesPool.spawn(this.spawnPoint.x, this.spawnPoint.y);
+	}, 
+	
+	hit: function(enemie, bullet) {
+		enemie.modifyHealth(-bullet.damage);
+		bullet.kill();
 	}
 };
 

@@ -81,4 +81,3 @@ Player.prototype.checkInput = function () {
 		this.currentWeapon = 2;
 	}
 };
-Player.prototype.modifyHealth = function () { };

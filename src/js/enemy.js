@@ -5,6 +5,7 @@ Enemy = function Enemy(game, player, graphic, position, speed, health, score) {
 	Character.apply(this, [game, graphic, position, speed, health]);
 	this.player = player;
 	this._score = score;
+	
 	this._attackSpeed = 2000;
 	this._updateDirectionSpeed = 1000;
 	this._lastAttackTime = Date.now();
@@ -21,6 +22,9 @@ Enemy.prototype.update = function() {
 	this.updateDirection(this.player);
 	this.game.physics.arcade.overlap(this.player, this, this.attack, null, this);
 	this.game.physics.arcade.collide(this.player, this);
+	if (this._health <= 0) {
+		this.kill();
+	}
 }
 
 // Zombie

@@ -12,6 +12,9 @@ Character = function Character(game, graphic, position, speed, health) {
 Character.prototype = Object.create(Phaser.Sprite.prototype);
 Character.prototype.constructor = Character;
 
-Character.prototype.loseHealth = function () { };
+Character.prototype.modifyHealth = function (increment) {
+	this._health += increment;
+};
+
 Character.prototype.die = function () { };
 

@@ -10,10 +10,11 @@ Weapon.pistol = function (game) {
 	this.nextFire = 0;
 	this.bulletSpeed = 600;
 	this.fireRate = 500;
+	this.damage = 5;
 
 	for (var i = 0; i < 32; i++)
 	{
-		this.add(new Bullet(game, 'bullet'), true);
+		this.add(new Bullet(game, 'bullet', this.damage), true);
 	}
 	this.callAll('kill');
 	
@@ -62,10 +63,11 @@ Weapon.rifle = function (game) {
 	this.nextFire = 0;
 	this.bulletSpeed = 1000;
 	this.fireRate = 100;
+	this.damage = 3;
 
 	for (var i = 0; i < 64; i++)
 	{
-		this.add(new Bullet(game, 'bullet'), true);
+		this.add(new Bullet(game, 'bullet', this.damage), true);
 	}
 
 	return this;
@@ -113,10 +115,11 @@ Weapon.shotgun = function (game) {
 	this.nextFire = 0;
 	this.bulletSpeed = 1000;
 	this.fireRate = 1000;
+	this.damage = 10;
 
 	for (var i = 0; i < 64; i++)
 	{
-		this.add(new Bullet(game, 'bullet'), true);
+		this.add(new Bullet(game, 'bullet', this.damage), true);
 	}
 
 	return this;
