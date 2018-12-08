@@ -29,7 +29,7 @@ Enemy.prototype.update = function() {
 
 // Zombie
 Zombie = function Zombie(game, player, position) {
-	Enemy.apply(this, [game, player, 'zombie', position, 50, 10, 1]);
+	Enemy.apply(this, [game, player, 'zombie', position, 50, 9, 10]);
 	this.damage = 10;
 	
 	this.frame = 0;
@@ -75,4 +75,8 @@ Zombie.prototype.attack = function () {
 		this.sound = this.game.add.audio('zombieAttack');
 		this.sound.play();
 	}
+};
+
+Zombie.prototype.increaseHealth = function () {
+	this._health++;
 };

@@ -12,7 +12,7 @@ Weapon.pistol = function (game) {
 	this.bulletSpeed = 600;
 	this.fireRate = 500;
 	this.damage = 5;
-	this.ammo = -1;
+	this.ammo = "Unlimited";
 
 	for (var i = 0; i < 32; i++)
 	{
@@ -68,11 +68,12 @@ Weapon.rifle.prototype = Object.create(Phaser.Group.prototype);
 Weapon.rifle.prototype.constructor = Weapon.rifle;
 
 Weapon.rifle.prototype.fire = function (source) {
-	if (this.game.time.time < this.nextFire) { return; }
+	if (this.game.time.time < this.nextFire || this.ammo <= 0) { return; }
 
 	var angle = source.angle - 90;
 	var x;
 	var y;
+	this.ammo--;
 	
 	if (angle == 0) { x = source.x + 20; y = source.y + 8; }
 	if (angle == -90) { x = source.x + 8; y = source.y - 20; }
@@ -109,11 +110,12 @@ Weapon.shotgun.prototype = Object.create(Phaser.Group.prototype);
 Weapon.shotgun.prototype.constructor = Weapon.shotgun;
 
 Weapon.shotgun.prototype.fire = function (source) {
-	if (this.game.time.time < this.nextFire) { return; }
+	if (this.game.time.time < this.nextFire || this.ammo <= 0) { return; }
 
 	var angle = source.angle - 90;
 	var x;
 	var y;
+	this.ammo--;
 	
 	if (angle == 0) { x = source.x + 20; y = source.y + 8; }
 	if (angle == -90) { x = source.x + 8; y = source.y - 20; }

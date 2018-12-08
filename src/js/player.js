@@ -28,6 +28,7 @@ Player.prototype.update = function() {
 	this.move();
 	this.checkInput();
 }
+
 Player.prototype.move = function () {
 	this.animations.play('walk');
 	if (this.keyboard.isDown(Phaser.Keyboard.A) || this.keyboard.isDown(Phaser.Keyboard.LEFT)) {
@@ -63,6 +64,7 @@ Player.prototype.move = function () {
 	}
 
 };
+
 Player.prototype.checkInput = function () {
 	if (this.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
 	{
