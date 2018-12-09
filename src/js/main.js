@@ -43,6 +43,7 @@ var PreloaderScene = {
 
 		this.game.load.image('title', 'images/CubeCarnage.png');
 		this.game.load.image('logo', 'images/kitten.png');
+		this.game.load.image('wall', 'images/wall.png');
 		this.game.load.audio('menuMusic', 'audio/Heroic_Intrusion.ogg');
 	},
 
@@ -81,7 +82,7 @@ var MenuScene = {
 	},
 
 	start: function() {
-		this.game.state.start('play');
+		this.game.state.start('play', true, false, 0);
 		PreloaderScene.music.stop();
 		this.music = this.game.add.audio('gameMusic');
 		this.music.loop = true;

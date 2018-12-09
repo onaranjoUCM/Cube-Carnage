@@ -1,26 +1,16 @@
-function Item(graphic, position) {
-    this._graphic = graphic;
-    this._position = position;
+MapObject = function MapObject(game, graphic, position, w, h) {
+	Phaser.Sprite.call(this, game, position.x, position.y, graphic);
+
+	this._graphic = graphic;
+	this._position = position;
+	this.width = w;
+	this.height = h;
+	
+	this.anchor.setTo(0.5,0.5);
+	
+	this.game.physics.arcade.enable(this, Phaser.Physics.ARCADE);
+	this.body.immovable = true;
 }
 
-function Barrel(graphic, position) {
-    Item.apply(this, [graphic, position]);
-}
-
-Barrel.prototype.explode = function () { };
-
-function AmmoCrate(graphic, position) {
-    Item.apply(this, [graphic, position]);
-}
-
-AmmoCrate.prototype.incrementAmmo = function () { };
-
-function Wall(graphic, position) {
-    Item.apply(this, [graphic, position]);
-}
-
-function Spawn(graphic, position) {
-    Item.apply(this, [graphic, position]);
-}
-
-Spawn.prototype.spawnZombie = function () { };
+MapObject.prototype = Object.create(Phaser.Sprite.prototype);
+MapObject.prototype.constructor = MapObject;

@@ -46,7 +46,7 @@ Zombie.prototype.updateDirection = function (player) {
 		this._lastMove = Date.now();
 		var distanceToPlayerX = Math.abs(this.x - this.player.x);
 		var distanceToPlayerY = Math.abs(this.y - this.player.y);
-		if (distanceToPlayerX > distanceToPlayerY) {
+		if (distanceToPlayerX > distanceToPlayerY || this.body.blocked.up || this.body.blocked.down) {
 			this.body.velocity.y = 0;
 			if (this.x > this.player.x) {
 				this.body.velocity.x = -this._speed;

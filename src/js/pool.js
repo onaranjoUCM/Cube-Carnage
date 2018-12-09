@@ -9,7 +9,7 @@ Pool.prototype.spawn = function (x, y) {
 	if (entity) {
 		entity.reset(x, y);
 		entity._currentHealth = entity._health;
-		entity.scale.setTo(0.12, 0.12);
+		entity.scale.setTo(0.12);
 	}
 	return entity;
 }

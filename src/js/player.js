@@ -18,7 +18,6 @@ Player = function Player(game, position) {
 	this.animations.add('walk', [1, 2], 5, true);
 	this.game.physics.arcade.enable(this, Phaser.Physics.ARCADE);
 	this.body.collideWorldBounds = true;
-	this.body.immovable = true
 }
 
 Player.prototype = Object.create(Character.prototype);
@@ -27,6 +26,9 @@ Player.prototype.constructor = Character;
 Player.prototype.update = function() {
 	this.move();
 	this.checkInput();
+	if (this._currentHealth == 0) {
+		 this.game.state.start('menu', true, false);
+	}
 }
 
 Player.prototype.move = function () {
