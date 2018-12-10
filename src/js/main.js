@@ -62,6 +62,7 @@ var MenuScene = {
 		this.game.load.spritesheet('player', 'images/playerWalkingRifle.png', 131, 275);
 		this.game.load.spritesheet('zombie', 'images/zombieWalking.png', 183, 271);
 		this.game.load.image('bullet', 'images/bullet.png');
+		this.game.load.image('blood', 'images/blood_splatter.png');
 		
 		this.game.load.audio('gameMusic', 'audio/Humble_Match.ogg');
 		this.game.load.audio('pistolShot', 'audio/pistolShot.mp3');

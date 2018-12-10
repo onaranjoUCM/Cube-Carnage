@@ -95,6 +95,10 @@ function bulletHitEnemy(enemy, bullet) {
 	if (enemy._currentHealth == 0) {
 		PlayScene.enemiesKilled++;
 		PlayScene.score += enemy._score;
+		var blood = PlayScene.game.add.sprite(enemy.position.x, enemy.position.y, 'blood');
+		blood.scale.setTo(0.1);
+		blood.anchor.setTo(0.5);
+		bringAllToTop();
 	}
 	bullet.kill();
 }
@@ -122,6 +126,13 @@ function recalculateDir(enemy) {
 			enemy.angle = -90;
 			enemy.body.velocity.x = -enemy._speed;
 		}
+	}
+}
+
+function bringAllToTop() {
+	PlayScene.player.bringToTop();
+	for(var i = 0; i < PlayScene.walls.length; i++) {
+		PlayScene.walls[i].bringToTop();
 	}
 }
 
