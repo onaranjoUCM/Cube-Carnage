@@ -16,7 +16,5 @@ Character.prototype.constructor = Character;
 Character.prototype.modifyHealth = function (increment) {
 	this._currentHealth += increment;
 	if (this._currentHealth < 0) { this._currentHealth = 0; }
+	if (this._currentHealth > 100) { this._currentHealth = 100; }
 };
-
-Character.prototype.die = function () { };
-

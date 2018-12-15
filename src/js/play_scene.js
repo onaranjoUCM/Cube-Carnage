@@ -8,6 +8,12 @@ var MapsScript = require('./maps.js');
 
 var PlayScene = {
 	create: function () {
+		// MUSICA
+		this.music = this.game.add.audio('gameMusic');
+		this.music.stop();
+		this.music.loop = true;
+		this.music.play();
+
 		// VARIABLES LOCALES
 		this.level = 0;
 		this.score = 0;
@@ -49,6 +55,7 @@ var PlayScene = {
 	update: function () {
 		// COLISIONES ZOMBIES
 		this.game.physics.arcade.collide(this.zombies, this.zombies);
+		this.game.physics.arcade.collide(this.zombies, this.runners);
 		this.game.physics.arcade.collide(this.zombies, this.walls, recalculateDir);
 
 		// COLISIONES RUNNERS
@@ -117,10 +124,9 @@ function bulletHitEnemy(enemy, bullet) {
 	if (enemy._currentHealth == 0) {
 		PlayScene.enemiesKilled++;
 		PlayScene.score += enemy._score;
-		var blood = PlayScene.game.add.sprite(enemy.position.x, enemy.position.y, 'blood');
-		blood.scale.setTo(0.1);
-		blood.anchor.setTo(0.5);
-		bringAllToTop();
+
+		spawnBlood(enemy);
+		if (enemy.key == 'runner') { spawnReward(enemy); }
 	}
 	bullet.kill();
 }
@@ -156,6 +162,24 @@ function bringAllToTop() {
 	for(var i = 0; i < PlayScene.walls.length; i++) {
 		PlayScene.walls[i].bringToTop();
 	}
+}
+
+function spawnBlood(enemy) {
+	var blood = PlayScene.game.add.sprite(enemy.position.x, enemy.position.y, 'blood');
+	blood.scale.setTo(0.1);
+	blood.anchor.setTo(0.5);
+	bringAllToTop();
+}
+
+function spawnReward(enemy) {
+	var reward;
+	if(Math.random() < 0.5) {
+		reward = new Medikit(PlayScene.game, enemy.position, PlayScene.player);
+	} else {
+		reward = new AmmoCrate(PlayScene.game, enemy.position, PlayScene.player);
+	}
+	PlayScene.game.add.existing(reward);
+	bringAllToTop();
 }
 
 module.exports = PlayScene;

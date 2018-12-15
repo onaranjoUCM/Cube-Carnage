@@ -49,9 +49,6 @@ var PreloaderScene = {
 
 	create: function () {
 		this.game.state.start('menu');
-		this.music = this.game.add.audio('menuMusic');
-		this.music.loop = true;
-		this.music.play();
 	}
 };
 
@@ -67,6 +64,8 @@ var MenuScene = {
 		this.game.load.spritesheet('runnerAttack', 'images/runnerAttack.png', 276, 442);
 		this.game.load.image('bullet', 'images/bullet.png');
 		this.game.load.image('blood', 'images/blood_splatter.png');
+		this.game.load.image('medikit', 'images/medikit.png');
+		this.game.load.image('ammocrate', 'images/ammocrate.png');
 		
 		this.game.load.audio('gameMusic', 'audio/Humble_Match.ogg');
 		this.game.load.audio('pistolShot', 'audio/pistolShot.mp3');
@@ -84,13 +83,14 @@ var MenuScene = {
 
 		var spacebar = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 		spacebar.onDown.addOnce(this.start, this);
+		
+		this.music = this.game.add.audio('menuMusic');
+		this.music.loop = true;
+		this.music.play();
 	},
 
 	start: function() {
+		this.music.stop();
 		this.game.state.start('play', true, false, 0);
-		PreloaderScene.music.stop();
-		this.music = this.game.add.audio('gameMusic');
-		this.music.loop = true;
-		this.music.play();
 	}
 };

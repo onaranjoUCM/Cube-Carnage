@@ -18,7 +18,7 @@ Player = function Player(game, position) {
 	this.animations.add('walk', [1, 2], 5, true);
 	this.game.physics.arcade.enable(this, Phaser.Physics.ARCADE);
 	this.body.collideWorldBounds = true;
-	this.body.setSize(270, 270, 0, 280);
+	this.body.setSize(290, 290, 0, 280);
 }
 
 Player.prototype = Object.create(Character.prototype);
@@ -28,7 +28,8 @@ Player.prototype.update = function() {
 	this.move();
 	this.checkInput();
 	if (this._currentHealth == 0) {
-		 this.game.state.start('menu', true, false);
+		this.game.state.states.play.music.stop();
+		this.game.state.start('menu', true, false);
 	}
 }
 
@@ -89,3 +90,8 @@ Player.prototype.checkInput = function () {
 		this.loadTexture('playerShotgun'), 0;
 	}
 };
+
+Player.prototype.restoreAmmo = function (rifleAmmo, shotgunAmmo) {
+	this.weapons[1].ammo += rifleAmmo;
+	this.weapons[2].ammo += shotgunAmmo;
+}

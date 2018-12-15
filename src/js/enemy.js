@@ -60,6 +60,16 @@ Enemy.prototype.increaseHealth = function () {
 	this._health += 2;
 };
 
+Enemy.prototype.attack = function () {
+	if (Date.now() - this._lastAttackTime > this._attackSpeed) {
+		this._lastAttackTime = Date.now();
+		this.player.modifyHealth(-this.damage);
+		this.sound = this.game.add.audio('zombieAttack');
+		this.sound.volume = 2;
+		this.sound.play();
+	}
+};
+
 // Zombie
 Zombie = function Zombie(game, player, position) {
 	Enemy.apply(this, [game, player, 'zombie', position, 50, 8, 10]);
@@ -73,15 +83,6 @@ Zombie = function Zombie(game, player, position) {
 Zombie.prototype = Object.create(Enemy.prototype);
 Zombie.prototype.constructor = Enemy;
 
-Zombie.prototype.attack = function () {
-	if (Date.now() - this._lastAttackTime > this._attackSpeed) {
-		this._lastAttackTime = Date.now();
-		this.player.modifyHealth(-this.damage);
-		this.sound = this.game.add.audio('zombieAttack');
-		this.sound.play();
-	}
-};
-
 // Runner
 Runner = function Runner(game, player, position) {
 	Enemy.apply(this, [game, player, 'runner', position, 150, 8, 10]);
@@ -94,12 +95,3 @@ Runner = function Runner(game, player, position) {
 
 Runner.prototype = Object.create(Enemy.prototype);
 Runner.prototype.constructor = Enemy;
-
-Runner.prototype.attack = function () {
-	if (Date.now() - this._lastAttackTime > this._attackSpeed) {
-		this._lastAttackTime = Date.now();
-		this.player.modifyHealth(-this.damage);
-		this.sound = this.game.add.audio('zombieAttack');
-		this.sound.play();
-	}
-};
