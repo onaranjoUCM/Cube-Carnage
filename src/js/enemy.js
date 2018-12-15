@@ -64,8 +64,9 @@ Zombie = function Zombie(game, player, position) {
 	this._attackSpeed = 2000;
 	this._updateDirectionSpeed = 1000;
 	
+	this.body.setSize(175, 175, 0, 70);
 	this.frame = 0;
-	this.anchor.setTo(0.5,0.5);
+	this.anchor.setTo(0.5, 0.6);
 	this.animations.add('walk', [1, 2], 1, true);
 }
 

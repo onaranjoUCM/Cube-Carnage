@@ -14,10 +14,11 @@ Player = function Player(game, position) {
 
 	this.scale.setTo(0.15);
 	this.frame = 0;
-	this.anchor.setTo(0.5);
+	this.anchor.setTo(0.5, 0.69);
 	this.animations.add('walk', [1, 2], 5, true);
 	this.game.physics.arcade.enable(this, Phaser.Physics.ARCADE);
 	this.body.collideWorldBounds = true;
+	this.body.setSize(130, 120, 0, 130);
 }
 
 Player.prototype = Object.create(Character.prototype);
