@@ -70,19 +70,22 @@ var PlayScene = {
 
 	// INTERFAZ
 	render: function () {
-		var healthBG = new Phaser.Rectangle(20, 20, 220, 40);
-		this.game.debug.geom( healthBG, 'rgba(0,0,0,1)' ) ;
+		// HEALTHBAR
+		var healthBG = new Phaser.Rectangle(20, 20, 320, 50);
+		this.game.debug.geom(healthBG, 'rgba(0, 0, 0, 0.2)') ;
+		var health = new Phaser.Rectangle(30,30,this.player._currentHealth*3,30);
+		this.game.debug.geom( health, 'rgba(255, 0, 0, 0.8)' ) ;
+		this.game.debug.text( "HEALTH: " + this.player._currentHealth, 40, 50, 'rgba(0, 0, 0, 1)' );
 
-		var health = new Phaser.Rectangle( 30, 30, this.player._currentHealth * 2, 20 );
-		this.game.debug.geom( health, 'rgba(255,0,0,1)' ) ;
+		// WEAPON AND AMMO
+		var weaponBG = new Phaser.Rectangle(20, this.game.world.height-60, 160, 40);
+		this.game.debug.geom(weaponBG, 'rgba(255, 215, 0, 0.5)') ;
+		this.game.debug.text( "WEAPON: " + this.player.weapons[this.player.currentWeapon].name, 25, this.game.world.height - 43, 'rgba(0,0,0,1)' );
+		this.game.debug.text( "AMMO: " + this.player.weapons[this.player.currentWeapon].ammo, 25, this.game.world.height - 25, 'rgba(0,0,0,1)' );
 
-		this.game.debug.text( "HEALTH: " + this.player._currentHealth, 20, 15, 'rgba(0,0,0,1)' );
-
-		this.game.debug.text( "WEAPON: " + this.player.weapons[this.player.currentWeapon].name, 20, this.game.world.height - 40, 'rgba(0,0,0,1)' );
-		this.game.debug.text( "AMMO: " + this.player.weapons[this.player.currentWeapon].ammo, 20, this.game.world.height - 22, 'rgba(0,0,0,1)' );
-
-		this.game.debug.text( "LEVEL: " + this.level, this.game.world.width - 220, 15, 'rgba(0,0,0,1)' );
-		this.game.debug.text( "SCORE: " + this.score, this.game.world.width - 120, 15, 'rgba(0,0,0,1)' );
+		// LEVEL AND SCORE
+		this.game.debug.text( "LEVEL: " + this.level, this.game.world.width - 220, 15, 'rgba(255, 255, 255, 1)' );
+		this.game.debug.text( "SCORE: " + this.score, this.game.world.width - 120, 15, 'rgba(255, 255, 255, 1)' );
 	}
 };
 

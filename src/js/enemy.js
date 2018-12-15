@@ -10,6 +10,10 @@ Enemy = function Enemy(game, player, graphic, position, speed, health, score) {
 	
 	this.game.physics.arcade.enable(this, Phaser.Physics.ARCADE);
 	this.body.collideWorldBounds = true;
+	
+	this.frame = 0;
+	this.anchor.setTo(0.5, 0.55);
+	this.body.setSize(270, 270, 0, 100);
 }
 
 Enemy.prototype = Object.create(Character.prototype);
@@ -61,13 +65,9 @@ Zombie = function Zombie(game, player, position) {
 	Enemy.apply(this, [game, player, 'zombie', position, 50, 8, 10]);
 	this.damage = 10;
 	
-	this._attackSpeed = 2000;
+	this._attackSpeed = 1000;
 	this._updateDirectionSpeed = 1000;
-	
-	this.body.setSize(175, 175, 0, 70);
-	this.frame = 0;
-	this.anchor.setTo(0.5, 0.6);
-	this.animations.add('walk', [1, 2], 1, true);
+	this.animations.add('walk', [1, 2], 2, true);
 }
 
 Zombie.prototype = Object.create(Enemy.prototype);
@@ -84,15 +84,12 @@ Zombie.prototype.attack = function () {
 
 // Runner
 Runner = function Runner(game, player, position) {
-	Enemy.apply(this, [game, player, 'player', position, 150, 8, 10]);
+	Enemy.apply(this, [game, player, 'runner', position, 150, 8, 10]);
 	this.damage = 10;
 	
-	this._attackSpeed = 2000;
+	this._attackSpeed = 500;
 	this._updateDirectionSpeed = 300;
-	
-	this.frame = 0;
-	this.anchor.setTo(0.5,0.5);
-	this.animations.add('walk', [1, 2], 1, true);
+	this.animations.add('walk', [1, 2], 4, true);
 }
 
 Runner.prototype = Object.create(Enemy.prototype);

@@ -33,10 +33,10 @@ Weapon.pistol.prototype.fire = function (source) {
 	var x;
 	var y;
 	
-	if (angle == 0) { x = source.x + 20; y = source.y + 8; }
-	if (angle == -90) { x = source.x + 8; y = source.y - 20; }
-	if ( angle == -180) { x = source.x - 20; y = source.y - 8; }
-	if (angle == -270) { x = source.x - 8; y = source.y + 20; }
+	if (angle == 0) { x = source.x + 10; y = source.y + 8; }
+	if (angle == -90) { x = source.x + 8; y = source.y - 10; }
+	if ( angle == -180) { x = source.x - 10; y = source.y - 8; }
+	if (angle == -270) { x = source.x - 8; y = source.y + 10; }
 
 	this.getFirstExists(false).fire(x, y, angle, this.bulletSpeed);
 
@@ -54,7 +54,7 @@ Weapon.rifle = function (game) {
 	this.bulletSpeed = 1000;
 	this.fireRate = 100;
 	this.damage = 3;
-	this.ammo = 100000;
+	this.ammo = 100;
 
 	for (var i = 0; i < 64; i++)
 	{
@@ -75,10 +75,10 @@ Weapon.rifle.prototype.fire = function (source) {
 	var y;
 	this.ammo--;
 	
-	if (angle == 0) { x = source.x + 20; y = source.y + 8; }
-	if (angle == -90) { x = source.x + 8; y = source.y - 20; }
-	if ( angle == -180) { x = source.x - 20; y = source.y - 8; }
-	if (angle == -270) { x = source.x - 8; y = source.y + 20; }
+	if (angle == 0) { x = source.x + 10; y = source.y + 8; }
+	if (angle == -90) { x = source.x + 8; y = source.y - 10; }
+	if ( angle == -180) { x = source.x - 10; y = source.y - 8; }
+	if (angle == -270) { x = source.x - 8; y = source.y + 10; }
 
 	this.getFirstExists(false).fire(x, y, angle, this.bulletSpeed);
 
@@ -117,10 +117,10 @@ Weapon.shotgun.prototype.fire = function (source) {
 	var y;
 	this.ammo--;
 	
-	if (angle == 0) { x = source.x + 20; y = source.y + 8; }
-	if (angle == -90) { x = source.x + 8; y = source.y - 20; }
-	if ( angle == -180) { x = source.x - 20; y = source.y - 8; }
-	if (angle == -270) { x = source.x - 8; y = source.y + 20; }
+	if (angle == 0) { x = source.x + 10; y = source.y + 8; }
+	if (angle == -90) { x = source.x + 8; y = source.y - 10; }
+	if ( angle == -180) { x = source.x - 10; y = source.y - 8; }
+	if (angle == -270) { x = source.x - 8; y = source.y + 10; }
 
 	this.getFirstExists(false).fire(x, y, angle + 30, this.bulletSpeed);
 	this.getFirstExists(false).fire(x, y, angle + 15, this.bulletSpeed);

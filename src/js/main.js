@@ -58,9 +58,13 @@ var PreloaderScene = {
 var MenuScene = {
 	preload: function () {
 		var music;
-		// TODO: load here the assets for the game
-		this.game.load.spritesheet('player', 'images/playerWalkingRifle.png', 131, 275);
-		this.game.load.spritesheet('zombie', 'images/zombieWalking.png', 183, 271);
+		this.game.load.spritesheet('playerPistol', 'images/playerWalkingPistol.png', 276, 584);
+		this.game.load.spritesheet('playerRifle', 'images/playerWalkingRifle.png', 276, 584);
+		this.game.load.spritesheet('playerShotgun', 'images/playerWalkingShotgun.png', 276, 584);
+		this.game.load.spritesheet('zombie', 'images/zombieWalk.png', 276, 424);
+		this.game.load.spritesheet('zombieAttack', 'images/zombieAttack.png', 276, 442);
+		this.game.load.spritesheet('runner', 'images/runnerWalk.png', 276, 424);
+		this.game.load.spritesheet('runnerAttack', 'images/runnerAttack.png', 276, 442);
 		this.game.load.image('bullet', 'images/bullet.png');
 		this.game.load.image('blood', 'images/blood_splatter.png');
 		
