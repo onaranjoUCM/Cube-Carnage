@@ -44,27 +44,25 @@ Character.prototype.constructor = Character;
 Character.prototype.modifyHealth = function (increment) {
 	this._currentHealth += increment;
 	if (this._currentHealth < 0) { this._currentHealth = 0; }
+	if (this._currentHealth > 100) { this._currentHealth = 100; }
 };
-
-Character.prototype.die = function () { };
-
-
 },{}],3:[function(require,module,exports){
 var CharacterScript = require('./character.js');
 
 // Enemy
 Enemy = function Enemy(game, player, graphic, position, speed, health, score) {
 	Character.apply(this, [game, graphic, position, speed, health]);
-	this.player = player;
 	this._score = score;
-	
-	this._attackSpeed = 2000;
-	this._updateDirectionSpeed = 1000;
+	this.player = player;
 	this._lastAttackTime = Date.now();
 	this._lastMove = Date.now();
 	
 	this.game.physics.arcade.enable(this, Phaser.Physics.ARCADE);
 	this.body.collideWorldBounds = true;
+	
+	this.frame = 0;
+	this.anchor.setTo(0.5, 0.55);
+	this.body.setSize(270, 270, 0, 100);
 }
 
 Enemy.prototype = Object.create(Character.prototype);
@@ -79,20 +77,7 @@ Enemy.prototype.update = function() {
 	}
 }
 
-// Zombie
-Zombie = function Zombie(game, player, position) {
-	Enemy.apply(this, [game, player, 'zombie', position, 50, 9, 10]);
-	this.damage = 10;
-	
-	this.frame = 0;
-	this.anchor.setTo(0.5,0.5);
-	this.animations.add('walk', [1, 2], 1, true);
-}
-
-Zombie.prototype = Object.create(Enemy.prototype);
-Zombie.prototype.constructor = Enemy;
-
-Zombie.prototype.updateDirection = function (player) {
+Enemy.prototype.updateDirection = function (player) {
 	this.animations.play('walk');
 	if (Date.now() - this._lastMove > this._updateDirectionSpeed) {
 		this._lastMove = Date.now();
@@ -120,18 +105,45 @@ Zombie.prototype.updateDirection = function (player) {
 	}
 };
 
-Zombie.prototype.attack = function () {
+Enemy.prototype.increaseHealth = function () {
+	this._health += 2;
+};
+
+Enemy.prototype.attack = function () {
 	if (Date.now() - this._lastAttackTime > this._attackSpeed) {
 		this._lastAttackTime = Date.now();
 		this.player.modifyHealth(-this.damage);
 		this.sound = this.game.add.audio('zombieAttack');
+		this.sound.volume = 2;
 		this.sound.play();
 	}
 };
 
-Zombie.prototype.increaseHealth = function () {
-	this._health++;
-};
+// Zombie
+Zombie = function Zombie(game, player, position) {
+	Enemy.apply(this, [game, player, 'zombie', position, 50, 8, 10]);
+	this.damage = 10;
+	
+	this._attackSpeed = 1000;
+	this._updateDirectionSpeed = 1000;
+	this.animations.add('walk', [1, 2], 2, true);
+}
+
+Zombie.prototype = Object.create(Enemy.prototype);
+Zombie.prototype.constructor = Enemy;
+
+// Runner
+Runner = function Runner(game, player, position) {
+	Enemy.apply(this, [game, player, 'runner', position, 150, 8, 10]);
+	this.damage = 10;
+	
+	this._attackSpeed = 500;
+	this._updateDirectionSpeed = 300;
+	this.animations.add('walk', [1, 2], 4, true);
+}
+
+Runner.prototype = Object.create(Enemy.prototype);
+Runner.prototype.constructor = Enemy;
 },{"./character.js":2}],4:[function(require,module,exports){
 'use strict';
 
@@ -184,20 +196,23 @@ var PreloaderScene = {
 
 	create: function () {
 		this.game.state.start('menu');
-		this.music = this.game.add.audio('menuMusic');
-		this.music.loop = true;
-		this.music.play();
 	}
 };
 
 var MenuScene = {
 	preload: function () {
 		var music;
-		// TODO: load here the assets for the game
-		this.game.load.spritesheet('player', 'images/playerWalkingRifle.png', 131, 275);
-		this.game.load.spritesheet('zombie', 'images/zombieWalking.png', 183, 271);
+		this.game.load.spritesheet('playerPistol', 'images/playerWalkingPistol.png', 276, 584);
+		this.game.load.spritesheet('playerRifle', 'images/playerWalkingRifle.png', 276, 584);
+		this.game.load.spritesheet('playerShotgun', 'images/playerWalkingShotgun.png', 276, 584);
+		this.game.load.spritesheet('zombie', 'images/zombieWalk.png', 276, 424);
+		this.game.load.spritesheet('zombieAttack', 'images/zombieAttack.png', 276, 442);
+		this.game.load.spritesheet('runner', 'images/runnerWalk.png', 276, 424);
+		this.game.load.spritesheet('runnerAttack', 'images/runnerAttack.png', 276, 442);
 		this.game.load.image('bullet', 'images/bullet.png');
 		this.game.load.image('blood', 'images/blood_splatter.png');
+		this.game.load.image('medikit', 'images/medikit.png');
+		this.game.load.image('ammocrate', 'images/ammocrate.png');
 		
 		this.game.load.audio('gameMusic', 'audio/Humble_Match.ogg');
 		this.game.load.audio('pistolShot', 'audio/pistolShot.mp3');
@@ -215,14 +230,15 @@ var MenuScene = {
 
 		var spacebar = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 		spacebar.onDown.addOnce(this.start, this);
+		
+		this.music = this.game.add.audio('menuMusic');
+		this.music.loop = true;
+		this.music.play();
 	},
 
 	start: function() {
+		this.music.stop();
 		this.game.state.start('play', true, false, 0);
-		PreloaderScene.music.stop();
-		this.music = this.game.add.audio('gameMusic');
-		this.music.loop = true;
-		this.music.play();
 	}
 };
 
@@ -321,6 +337,44 @@ MapObject = function MapObject(game, graphic, position, w, h) {
 
 MapObject.prototype = Object.create(Phaser.Sprite.prototype);
 MapObject.prototype.constructor = MapObject;
+
+// Medikit
+Medikit = function Medikit(game, position, player) {
+	MapObject.apply(this, [game, 'medikit', position, 20, 20]);
+	
+	this.player = player;
+}
+
+Medikit.prototype = Object.create(MapObject.prototype);
+Medikit.prototype.constructor = MapObject;
+
+Medikit.prototype.update = function() {
+	this.game.physics.arcade.overlap(this.player, this, this.restoreHealth, null, this);
+}
+
+Medikit.prototype.restoreHealth = function() {
+	this.player.modifyHealth(20);
+	this.destroy();
+}
+
+// AmmoCrate
+AmmoCrate = function AmmoCrate(game, position, player) {
+	MapObject.apply(this, [game, 'ammocrate', position, 20, 20]);
+	
+	this.player = player;
+}
+
+AmmoCrate.prototype = Object.create(MapObject.prototype);
+AmmoCrate.prototype.constructor = MapObject;
+
+AmmoCrate.prototype.update = function() {
+	this.game.physics.arcade.overlap(this.player, this, this.restoreAmmo, null, this);
+}
+
+AmmoCrate.prototype.restoreAmmo = function() {
+	this.player.restoreAmmo(25, 5);
+	this.destroy();
+}
 },{}],7:[function(require,module,exports){
 'use strict';
 var CharacterScript = require('./character.js');
@@ -332,10 +386,16 @@ var MapsScript = require('./maps.js');
 
 var PlayScene = {
 	create: function () {
+		// MUSICA
+		this.music = this.game.add.audio('gameMusic');
+		this.music.stop();
+		this.music.loop = true;
+		this.music.play();
+
 		// VARIABLES LOCALES
 		this.level = 0;
 		this.score = 0;
-		this.enemies = [];
+		this.enemiesKilled = 0;
 		this.maps = [
 			new Maps.map1(this.game),
 			new Maps.map2(this.game),
@@ -343,17 +403,24 @@ var PlayScene = {
 		];
 		this.walls = this.maps[0].walls;
 		this.spawnPoints = this.maps[0].spawnPoints;
-		this.enemiesKilled = 0;
 
 		// PLAYER
 		this.player = new Player(this.game, {x: this.game.world.width / 2, y: this.game.world.height / 2});
 		this.game.add.existing(this.player);
 
-		// ENEMIGOS
+		// ZOMBIES
+		this.zombies = [];
 		for(var i = 0; i < 100; i++) {
-			this.enemies.push(new Zombie(this.game, this.player, {x: 0, y: 0}));
+			this.zombies.push(new Zombie(this.game, this.player, {x: 0, y: 0}));
 		}
-		this.enemiesPool = new Pool(this.game, this.enemies);
+		this.zombiesPool = new Pool(this.game, this.zombies);
+
+		// RUNNERS
+		this.runners = [];
+		for(var i = 0; i < 50; i++) {
+			this.runners.push(new Runner(this.game, this.player, {x: 0, y: 0}));
+		}
+		this.runnersPool = new Pool(this.game, this.runners);
 
 		// MUROS
 		for(var i = 0; i < this.walls.length; i++) {
@@ -364,15 +431,23 @@ var PlayScene = {
 	},
 
 	update: function () {
-		// COLISIONES
-		this.game.physics.arcade.collide(this.enemies, this.enemies);
-		this.game.physics.arcade.collide(this.enemies, this.walls, recalculateDir);
+		// COLISIONES ZOMBIES
+		this.game.physics.arcade.collide(this.zombies, this.zombies);
+		this.game.physics.arcade.collide(this.zombies, this.runners);
+		this.game.physics.arcade.collide(this.zombies, this.walls, recalculateDir);
+
+		// COLISIONES RUNNERS
+		this.game.physics.arcade.collide(this.runners, this.runners);
+		this.game.physics.arcade.collide(this.runners, this.walls, recalculateDir);
+
 		this.game.physics.arcade.collide(this.player, this.walls);
 
-		this.game.physics.arcade.collide(this.enemies, this.player.weapons[this.player.currentWeapon].hash, bulletHitEnemy);
+		// COLISIONES BALAS
+		this.game.physics.arcade.collide(this.zombies, this.player.weapons[this.player.currentWeapon].hash, bulletHitEnemy);
+		this.game.physics.arcade.collide(this.runners, this.player.weapons[this.player.currentWeapon].hash, bulletHitEnemy);
 		this.game.physics.arcade.collide(this.walls, this.player.weapons[this.player.currentWeapon].hash, bulletHitWall);
 
-		if (this.enemiesKilled == this.numEnemies) {
+		if (this.enemiesKilled >= this.numEnemies) {
 			this.enemiesKilled = 0;
 			nextLevel();
 		}
@@ -380,38 +455,46 @@ var PlayScene = {
 
 	// INTERFAZ
 	render: function () {
-		var healthBG = new Phaser.Rectangle(20, 20, 220, 40);
-		this.game.debug.geom( healthBG, 'rgba(0,0,0,1)' ) ;
+		// HEALTHBAR
+		var healthBG = new Phaser.Rectangle(20, 20, 320, 50);
+		this.game.debug.geom(healthBG, 'rgba(0, 0, 0, 0.2)') ;
+		var health = new Phaser.Rectangle(30,30,this.player._currentHealth*3,30);
+		this.game.debug.geom( health, 'rgba(255, 0, 0, 0.8)' ) ;
+		this.game.debug.text( "HEALTH: " + this.player._currentHealth, 40, 50, 'rgba(0, 0, 0, 1)' );
 
-		var health = new Phaser.Rectangle( 30, 30, this.player._currentHealth * 2, 20 );
-		this.game.debug.geom( health, 'rgba(255,0,0,1)' ) ;
+		// WEAPON AND AMMO
+		var weaponBG = new Phaser.Rectangle(20, this.game.world.height-60, 160, 40);
+		this.game.debug.geom(weaponBG, 'rgba(255, 215, 0, 0.5)') ;
+		this.game.debug.text( "WEAPON: " + this.player.weapons[this.player.currentWeapon].name, 25, this.game.world.height - 43, 'rgba(0,0,0,1)' );
+		this.game.debug.text( "AMMO: " + this.player.weapons[this.player.currentWeapon].ammo, 25, this.game.world.height - 25, 'rgba(0,0,0,1)' );
 
-		this.game.debug.text( "HEALTH: " + this.player._currentHealth, 20, 15, 'rgba(0,0,0,1)' );
-
-		this.game.debug.text( "WEAPON: " + this.player.weapons[this.player.currentWeapon].name, 20, this.game.world.height - 40, 'rgba(0,0,0,1)' );
-		this.game.debug.text( "AMMO: " + this.player.weapons[this.player.currentWeapon].ammo, 20, this.game.world.height - 22, 'rgba(0,0,0,1)' );
-
-		this.game.debug.text( "LEVEL: " + this.level, this.game.world.width - 220, 15, 'rgba(0,0,0,1)' );
-		this.game.debug.text( "SCORE: " + this.score, this.game.world.width - 120, 15, 'rgba(0,0,0,1)' );
+		// LEVEL AND SCORE
+		this.game.debug.text( "LEVEL: " + this.level, this.game.world.width - 220, 15, 'rgba(255, 255, 255, 1)' );
+		this.game.debug.text( "SCORE: " + this.score, this.game.world.width - 120, 15, 'rgba(255, 255, 255, 1)' );
 	}
 };
 
 function nextLevel() {
 	PlayScene.level++;
 	PlayScene.numEnemies = PlayScene.level *  2 + 10;
-	PlayScene.enemiesPool._group.callAll('increaseHealth');
+	PlayScene.zombiesPool._group.callAll('increaseHealth');
+	PlayScene.runnersPool._group.callAll('increaseHealth');
 	PlayScene.game.time.events.add(Phaser.Timer.SECOND * 3, beginSpawning, this);
 }
 
 // LLAMA A CREAR ZOMBI CADA X SEGUNDOS
 function beginSpawning() {
-	PlayScene.game.time.events.repeat(Phaser.Timer.SECOND, PlayScene.numEnemies, spawnZombie, this);
+	PlayScene.game.time.events.repeat(Phaser.Timer.SECOND, PlayScene.numEnemies, spawnEnemy, this);
 }
 
 // CREA ZOMBI EN SPAWN ALEATORIO
-function spawnZombie() {
+function spawnEnemy() {
 	PlayScene.spawnPoint = PlayScene.spawnPoints[Math.floor(Math.random() * PlayScene.spawnPoints.length)];
-	PlayScene.enemiesPool.spawn(PlayScene.spawnPoint.x, PlayScene.spawnPoint.y);
+	if(Math.random() < PlayScene.level / 20) {
+		PlayScene.runnersPool.spawn(PlayScene.spawnPoint.x, PlayScene.spawnPoint.y);
+	} else {
+		PlayScene.zombiesPool.spawn(PlayScene.spawnPoint.x, PlayScene.spawnPoint.y);
+	}
 }
 
 function bulletHitEnemy(enemy, bullet) {
@@ -419,10 +502,9 @@ function bulletHitEnemy(enemy, bullet) {
 	if (enemy._currentHealth == 0) {
 		PlayScene.enemiesKilled++;
 		PlayScene.score += enemy._score;
-		var blood = PlayScene.game.add.sprite(enemy.position.x, enemy.position.y, 'blood');
-		blood.scale.setTo(0.1);
-		blood.anchor.setTo(0.5);
-		bringAllToTop();
+
+		spawnBlood(enemy);
+		if (enemy.key == 'runner') { spawnReward(enemy); }
 	}
 	bullet.kill();
 }
@@ -458,12 +540,32 @@ function bringAllToTop() {
 	for(var i = 0; i < PlayScene.walls.length; i++) {
 		PlayScene.walls[i].bringToTop();
 	}
+	for(var i = 0; i < PlayScene.zombies.length; i++) {
+		PlayScene.zombies[i].bringToTop();
+	}
+	console.log(PlayScene.walls[0]);
+	console.log(PlayScene.zombies[0])
+}
+
+function spawnBlood(enemy) {
+	var blood = PlayScene.game.add.sprite(enemy.position.x, enemy.position.y, 'blood');
+	blood.scale.setTo(0.1);
+	blood.anchor.setTo(0.5);
+	bringAllToTop();
+}
+
+function spawnReward(enemy) {
+	var reward;
+	if(Math.random() < 0.5) {
+		reward = new Medikit(PlayScene.game, enemy.position, PlayScene.player);
+	} else {
+		reward = new AmmoCrate(PlayScene.game, enemy.position, PlayScene.player);
+	}
+	PlayScene.game.add.existing(reward);
+	bringAllToTop();
 }
 
 module.exports = PlayScene;
-
-// ERRORES CONOCIDOS
-// - La escopeta provoca errores al impactar varias balas a la vez en el mismo enemigo
 
 },{"./character.js":2,"./enemy.js":3,"./maps.js":5,"./object.js":6,"./player.js":8,"./pool.js":9}],8:[function(require,module,exports){
 var CharacterScript = require('./character.js');
@@ -471,7 +573,7 @@ var WeaponsScript = require('./weapons.js');
 
 // Player
 Player = function Player(game, position) {
-	Character.apply(this, [game, 'player', position, 200, 100]);
+	Character.apply(this, [game, 'playerPistol', position, 200, 100]);
 	this.keyboard = game.input.keyboard;
 	this.weapons = [
 		new Weapon.pistol(game),
@@ -480,12 +582,13 @@ Player = function Player(game, position) {
 	];
 	this.currentWeapon = 0;
 
-	this.scale.setTo(0.15);
+	this.scale.setTo(0.075);
 	this.frame = 0;
-	this.anchor.setTo(0.5);
+	this.anchor.setTo(0.5, 0.72);
 	this.animations.add('walk', [1, 2], 5, true);
 	this.game.physics.arcade.enable(this, Phaser.Physics.ARCADE);
 	this.body.collideWorldBounds = true;
+	this.body.setSize(290, 290, 0, 280);
 }
 
 Player.prototype = Object.create(Character.prototype);
@@ -495,7 +598,8 @@ Player.prototype.update = function() {
 	this.move();
 	this.checkInput();
 	if (this._currentHealth == 0) {
-		 this.game.state.start('menu', true, false);
+		this.game.state.states.play.music.stop();
+		this.game.state.start('menu', true, false);
 	}
 }
 
@@ -543,16 +647,24 @@ Player.prototype.checkInput = function () {
 	if (this.keyboard.isDown(Phaser.Keyboard.ONE))
 	{
 		this.currentWeapon = 0;
+		this.loadTexture('playerPistol'), 0;
 	}
 	if (this.keyboard.isDown(Phaser.Keyboard.TWO))
 	{
 		this.currentWeapon = 1;
+		this.loadTexture('playerRifle'), 0;
 	}
 	if (this.keyboard.isDown(Phaser.Keyboard.THREE))
 	{
 		this.currentWeapon = 2;
+		this.loadTexture('playerShotgun'), 0;
 	}
 };
+
+Player.prototype.restoreAmmo = function (rifleAmmo, shotgunAmmo) {
+	this.weapons[1].ammo += rifleAmmo;
+	this.weapons[2].ammo += shotgunAmmo;
+}
 },{"./character.js":2,"./weapons.js":10}],9:[function(require,module,exports){
 Pool = function (game, entities) {
 	this._group = game.add.physicsGroup(Phaser.Physics.ARCADE);
@@ -565,7 +677,7 @@ Pool.prototype.spawn = function (x, y) {
 	if (entity) {
 		entity.reset(x, y);
 		entity._currentHealth = entity._health;
-		entity.scale.setTo(0.12);
+		entity.scale.setTo(0.075);
 	}
 	return entity;
 }
@@ -605,10 +717,10 @@ Weapon.pistol.prototype.fire = function (source) {
 	var x;
 	var y;
 	
-	if (angle == 0) { x = source.x + 20; y = source.y + 8; }
-	if (angle == -90) { x = source.x + 8; y = source.y - 20; }
-	if ( angle == -180) { x = source.x - 20; y = source.y - 8; }
-	if (angle == -270) { x = source.x - 8; y = source.y + 20; }
+	if (angle == 0) { x = source.x + 10; y = source.y + 8; }
+	if (angle == -90) { x = source.x + 8; y = source.y - 10; }
+	if ( angle == -180) { x = source.x - 10; y = source.y - 8; }
+	if (angle == -270) { x = source.x - 8; y = source.y + 10; }
 
 	this.getFirstExists(false).fire(x, y, angle, this.bulletSpeed);
 
@@ -647,10 +759,10 @@ Weapon.rifle.prototype.fire = function (source) {
 	var y;
 	this.ammo--;
 	
-	if (angle == 0) { x = source.x + 20; y = source.y + 8; }
-	if (angle == -90) { x = source.x + 8; y = source.y - 20; }
-	if ( angle == -180) { x = source.x - 20; y = source.y - 8; }
-	if (angle == -270) { x = source.x - 8; y = source.y + 20; }
+	if (angle == 0) { x = source.x + 10; y = source.y + 8; }
+	if (angle == -90) { x = source.x + 8; y = source.y - 10; }
+	if ( angle == -180) { x = source.x - 10; y = source.y - 8; }
+	if (angle == -270) { x = source.x - 8; y = source.y + 10; }
 
 	this.getFirstExists(false).fire(x, y, angle, this.bulletSpeed);
 
@@ -689,10 +801,10 @@ Weapon.shotgun.prototype.fire = function (source) {
 	var y;
 	this.ammo--;
 	
-	if (angle == 0) { x = source.x + 20; y = source.y + 8; }
-	if (angle == -90) { x = source.x + 8; y = source.y - 20; }
-	if ( angle == -180) { x = source.x - 20; y = source.y - 8; }
-	if (angle == -270) { x = source.x - 8; y = source.y + 20; }
+	if (angle == 0) { x = source.x + 10; y = source.y + 8; }
+	if (angle == -90) { x = source.x + 8; y = source.y - 10; }
+	if ( angle == -180) { x = source.x - 10; y = source.y - 8; }
+	if (angle == -270) { x = source.x - 8; y = source.y + 10; }
 
 	this.getFirstExists(false).fire(x, y, angle + 30, this.bulletSpeed);
 	this.getFirstExists(false).fire(x, y, angle + 15, this.bulletSpeed);
