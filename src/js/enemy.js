@@ -3,11 +3,8 @@ var CharacterScript = require('./character.js');
 // Enemy
 Enemy = function Enemy(game, player, graphic, position, speed, health, score) {
 	Character.apply(this, [game, graphic, position, speed, health]);
-	this.player = player;
 	this._score = score;
-	
-	this._attackSpeed = 2000;
-	this._updateDirectionSpeed = 1000;
+	this.player = player;
 	this._lastAttackTime = Date.now();
 	this._lastMove = Date.now();
 	
@@ -27,20 +24,7 @@ Enemy.prototype.update = function() {
 	}
 }
 
-// Zombie
-Zombie = function Zombie(game, player, position) {
-	Enemy.apply(this, [game, player, 'zombie', position, 50, 9, 10]);
-	this.damage = 10;
-	
-	this.frame = 0;
-	this.anchor.setTo(0.5,0.5);
-	this.animations.add('walk', [1, 2], 1, true);
-}
-
-Zombie.prototype = Object.create(Enemy.prototype);
-Zombie.prototype.constructor = Enemy;
-
-Zombie.prototype.updateDirection = function (player) {
+Enemy.prototype.updateDirection = function (player) {
 	this.animations.play('walk');
 	if (Date.now() - this._lastMove > this._updateDirectionSpeed) {
 		this._lastMove = Date.now();
@@ -68,6 +52,26 @@ Zombie.prototype.updateDirection = function (player) {
 	}
 };
 
+Enemy.prototype.increaseHealth = function () {
+	this._health += 2;
+};
+
+// Zombie
+Zombie = function Zombie(game, player, position) {
+	Enemy.apply(this, [game, player, 'zombie', position, 50, 8, 10]);
+	this.damage = 10;
+	
+	this._attackSpeed = 2000;
+	this._updateDirectionSpeed = 1000;
+	
+	this.frame = 0;
+	this.anchor.setTo(0.5,0.5);
+	this.animations.add('walk', [1, 2], 1, true);
+}
+
+Zombie.prototype = Object.create(Enemy.prototype);
+Zombie.prototype.constructor = Enemy;
+
 Zombie.prototype.attack = function () {
 	if (Date.now() - this._lastAttackTime > this._attackSpeed) {
 		this._lastAttackTime = Date.now();
@@ -77,6 +81,27 @@ Zombie.prototype.attack = function () {
 	}
 };
 
-Zombie.prototype.increaseHealth = function () {
-	this._health++;
+// Runner
+Runner = function Runner(game, player, position) {
+	Enemy.apply(this, [game, player, 'player', position, 150, 8, 10]);
+	this.damage = 10;
+	
+	this._attackSpeed = 2000;
+	this._updateDirectionSpeed = 300;
+	
+	this.frame = 0;
+	this.anchor.setTo(0.5,0.5);
+	this.animations.add('walk', [1, 2], 1, true);
+}
+
+Runner.prototype = Object.create(Enemy.prototype);
+Runner.prototype.constructor = Enemy;
+
+Runner.prototype.attack = function () {
+	if (Date.now() - this._lastAttackTime > this._attackSpeed) {
+		this._lastAttackTime = Date.now();
+		this.player.modifyHealth(-this.damage);
+		this.sound = this.game.add.audio('zombieAttack');
+		this.sound.play();
+	}
 };

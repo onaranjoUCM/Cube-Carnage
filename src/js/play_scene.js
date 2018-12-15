@@ -11,7 +11,7 @@ var PlayScene = {
 		// VARIABLES LOCALES
 		this.level = 0;
 		this.score = 0;
-		this.enemies = [];
+		this.enemiesKilled = 0;
 		this.maps = [
 			new Maps.map1(this.game),
 			new Maps.map2(this.game),
@@ -19,17 +19,24 @@ var PlayScene = {
 		];
 		this.walls = this.maps[0].walls;
 		this.spawnPoints = this.maps[0].spawnPoints;
-		this.enemiesKilled = 0;
 
 		// PLAYER
 		this.player = new Player(this.game, {x: this.game.world.width / 2, y: this.game.world.height / 2});
 		this.game.add.existing(this.player);
 
-		// ENEMIGOS
+		// ZOMBIES
+		this.zombies = [];
 		for(var i = 0; i < 100; i++) {
-			this.enemies.push(new Zombie(this.game, this.player, {x: 0, y: 0}));
+			this.zombies.push(new Zombie(this.game, this.player, {x: 0, y: 0}));
 		}
-		this.enemiesPool = new Pool(this.game, this.enemies);
+		this.zombiesPool = new Pool(this.game, this.zombies);
+
+		// RUNNERS
+		this.runners = [];
+		for(var i = 0; i < 50; i++) {
+			this.runners.push(new Runner(this.game, this.player, {x: 0, y: 0}));
+		}
+		this.runnersPool = new Pool(this.game, this.runners);
 
 		// MUROS
 		for(var i = 0; i < this.walls.length; i++) {
@@ -40,15 +47,22 @@ var PlayScene = {
 	},
 
 	update: function () {
-		// COLISIONES
-		this.game.physics.arcade.collide(this.enemies, this.enemies);
-		this.game.physics.arcade.collide(this.enemies, this.walls, recalculateDir);
+		// COLISIONES ZOMBIES
+		this.game.physics.arcade.collide(this.zombies, this.zombies);
+		this.game.physics.arcade.collide(this.zombies, this.walls, recalculateDir);
+
+		// COLISIONES RUNNERS
+		this.game.physics.arcade.collide(this.runners, this.runners);
+		this.game.physics.arcade.collide(this.runners, this.walls, recalculateDir);
+
 		this.game.physics.arcade.collide(this.player, this.walls);
 
-		this.game.physics.arcade.collide(this.enemies, this.player.weapons[this.player.currentWeapon].hash, bulletHitEnemy);
+		// COLISIONES BALAS
+		this.game.physics.arcade.collide(this.zombies, this.player.weapons[this.player.currentWeapon].hash, bulletHitEnemy);
+		this.game.physics.arcade.collide(this.runners, this.player.weapons[this.player.currentWeapon].hash, bulletHitEnemy);
 		this.game.physics.arcade.collide(this.walls, this.player.weapons[this.player.currentWeapon].hash, bulletHitWall);
 
-		if (this.enemiesKilled == this.numEnemies) {
+		if (this.enemiesKilled >= this.numEnemies) {
 			this.enemiesKilled = 0;
 			nextLevel();
 		}
@@ -75,19 +89,24 @@ var PlayScene = {
 function nextLevel() {
 	PlayScene.level++;
 	PlayScene.numEnemies = PlayScene.level *  2 + 10;
-	PlayScene.enemiesPool._group.callAll('increaseHealth');
+	PlayScene.zombiesPool._group.callAll('increaseHealth');
+	PlayScene.runnersPool._group.callAll('increaseHealth');
 	PlayScene.game.time.events.add(Phaser.Timer.SECOND * 3, beginSpawning, this);
 }
 
 // LLAMA A CREAR ZOMBI CADA X SEGUNDOS
 function beginSpawning() {
-	PlayScene.game.time.events.repeat(Phaser.Timer.SECOND, PlayScene.numEnemies, spawnZombie, this);
+	PlayScene.game.time.events.repeat(Phaser.Timer.SECOND, PlayScene.numEnemies, spawnEnemy, this);
 }
 
 // CREA ZOMBI EN SPAWN ALEATORIO
-function spawnZombie() {
+function spawnEnemy() {
 	PlayScene.spawnPoint = PlayScene.spawnPoints[Math.floor(Math.random() * PlayScene.spawnPoints.length)];
-	PlayScene.enemiesPool.spawn(PlayScene.spawnPoint.x, PlayScene.spawnPoint.y);
+	if(Math.random() < PlayScene.level / 20) {
+		PlayScene.runnersPool.spawn(PlayScene.spawnPoint.x, PlayScene.spawnPoint.y);
+	} else {
+		PlayScene.zombiesPool.spawn(PlayScene.spawnPoint.x, PlayScene.spawnPoint.y);
+	}
 }
 
 function bulletHitEnemy(enemy, bullet) {
@@ -137,6 +156,3 @@ function bringAllToTop() {
 }
 
 module.exports = PlayScene;
-
-// ERRORES CONOCIDOS
-// - La escopeta provoca errores al impactar varias balas a la vez en el mismo enemigo

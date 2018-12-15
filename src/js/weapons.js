@@ -54,7 +54,7 @@ Weapon.rifle = function (game) {
 	this.bulletSpeed = 1000;
 	this.fireRate = 100;
 	this.damage = 3;
-	this.ammo = 100;
+	this.ammo = 100000;
 
 	for (var i = 0; i < 64; i++)
 	{
