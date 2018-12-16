@@ -23,8 +23,8 @@ var PlayScene = {
 			new Maps.map2(this.game),
 			new Maps.map3(this.game)
 		];
-		this.walls = this.maps[0].walls;
-		this.spawnPoints = this.maps[0].spawnPoints;
+		this.walls = this.maps[1].walls;
+		this.spawnPoints = this.maps[1].spawnPoints;
 
 		// PLAYER
 		this.player = new Player(this.game, {x: this.game.world.width / 2, y: this.game.world.height / 2});
@@ -162,6 +162,11 @@ function bringAllToTop() {
 	for(var i = 0; i < PlayScene.walls.length; i++) {
 		PlayScene.walls[i].bringToTop();
 	}
+	for(var i = 0; i < PlayScene.zombies.length; i++) {
+		PlayScene.zombies[i].bringToTop();
+	}
+	console.log(PlayScene.walls[0]);
+	console.log(PlayScene.zombies[0])
 }
 
 function spawnBlood(enemy) {
