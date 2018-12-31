@@ -25,6 +25,12 @@ window.onload = function () {
 
 var BootScene = {
 	preload: function () {
+		this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
+		this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.UP);
+		this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.DOWN);
+		this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.LEFT);
+		this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.RIGHT);
+		
 		// load here assets required for the loading screen
 		this.game.load.image('preloader_bar', 'images/preloader_bar.png');
 	},
@@ -55,21 +61,35 @@ var PreloaderScene = {
 var MenuScene = {
 	preload: function () {
 		var music;
+		// Player sprites
 		this.game.load.spritesheet('playerPistol', 'images/playerWalkingPistol.png', 276, 584);
 		this.game.load.spritesheet('playerRifle', 'images/playerWalkingRifle.png', 276, 584);
 		this.game.load.spritesheet('playerShotgun', 'images/playerWalkingShotgun.png', 276, 584);
+		
+		// Enemies sprites
 		this.game.load.spritesheet('zombie', 'images/zombieWalk.png', 276, 424);
 		this.game.load.spritesheet('zombieAttack', 'images/zombieAttack.png', 276, 442);
 		this.game.load.spritesheet('runner', 'images/runnerWalk.png', 276, 424);
 		this.game.load.spritesheet('runnerAttack', 'images/runnerAttack.png', 276, 442);
+		
+		// Items sprites
 		this.game.load.image('bullet', 'images/bullet.png');
 		this.game.load.image('blood', 'images/blood_splatter.png');
 		this.game.load.image('medikit', 'images/medikit.png');
 		this.game.load.image('ammocrate', 'images/ammocrate.png');
 		
+		// Music
 		this.game.load.audio('gameMusic', 'audio/Humble_Match.ogg');
+		
+		// Audio effects
 		this.game.load.audio('pistolShot', 'audio/pistolShot.mp3');
 		this.game.load.audio('zombieAttack', 'audio/zombieAttack.mp3');
+		this.game.load.audio('emptyGun', 'audio/emptyGun.mp3');
+		this.game.load.audio('heal', 'audio/heal.mp3');
+		this.game.load.audio('heartbeat', 'audio/heartbeat.mp3');
+		this.game.load.audio('shotgun', 'audio/shotgun.mp3');
+		this.game.load.audio('switchWeapon', 'audio/switchWeapon.mp3');
+		this.game.load.audio('noMercy', 'audio/noMercy.mp3');
 	},
 
 	create: function () {

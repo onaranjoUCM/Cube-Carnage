@@ -11,6 +11,10 @@ Player = function Player(game, position) {
 		new Weapon.shotgun(game)
 	];
 	this.currentWeapon = 0;
+	this.switchWeaponSound = game.add.audio('switchWeapon');
+	this.heartbeatSound = game.add.audio('heartbeat');
+	this.heartbeatSound.loop = true;
+	this.heartbeatSound.volume = 5;
 
 	this.scale.setTo(0.075);
 	this.frame = 0;
@@ -30,6 +34,12 @@ Player.prototype.update = function() {
 	if (this._currentHealth == 0) {
 		this.game.state.states.play.music.stop();
 		this.game.state.start('menu', true, false);
+	}
+	if (this._currentHealth <= 25 && !this.heartbeatSound.isPlaying) {
+		this.heartbeatSound.play();
+	}
+	if (this._currentHealth > 25) {
+		this.heartbeatSound.stop();
 	}
 }
 
@@ -76,16 +86,19 @@ Player.prototype.checkInput = function () {
 	}
 	if (this.keyboard.isDown(Phaser.Keyboard.ONE))
 	{
+		this.switchWeaponSound.play();
 		this.currentWeapon = 0;
 		this.loadTexture('playerPistol'), 0;
 	}
 	if (this.keyboard.isDown(Phaser.Keyboard.TWO))
 	{
+		this.switchWeaponSound.play();
 		this.currentWeapon = 1;
 		this.loadTexture('playerRifle'), 0;
 	}
 	if (this.keyboard.isDown(Phaser.Keyboard.THREE))
 	{
+		this.switchWeaponSound.play();
 		this.currentWeapon = 2;
 		this.loadTexture('playerShotgun'), 0;
 	}

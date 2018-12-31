@@ -20,6 +20,7 @@ Medikit = function Medikit(game, position, player) {
 	MapObject.apply(this, [game, 'medikit', position, 20, 20]);
 	
 	this.player = player;
+	this.sound = game.add.audio('heal');
 }
 
 Medikit.prototype = Object.create(MapObject.prototype);
@@ -30,6 +31,7 @@ Medikit.prototype.update = function() {
 }
 
 Medikit.prototype.restoreHealth = function() {
+	this.sound.play();
 	this.player.modifyHealth(20);
 	this.destroy();
 }
@@ -39,6 +41,7 @@ AmmoCrate = function AmmoCrate(game, position, player) {
 	MapObject.apply(this, [game, 'ammocrate', position, 20, 20]);
 	
 	this.player = player;
+	this.sound = game.add.audio('switchWeapon');
 }
 
 AmmoCrate.prototype = Object.create(MapObject.prototype);
@@ -49,6 +52,7 @@ AmmoCrate.prototype.update = function() {
 }
 
 AmmoCrate.prototype.restoreAmmo = function() {
+	this.sound.play();
 	this.player.restoreAmmo(25, 5);
 	this.destroy();
 }

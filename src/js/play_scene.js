@@ -9,6 +9,7 @@ var MapsScript = require('./maps.js');
 var PlayScene = {
 	create: function () {
 		// MUSICA
+		this.noMercy = this.game.add.audio('noMercy');
 		this.music = this.game.add.audio('gameMusic');
 		this.music.stop();
 		this.music.loop = true;
@@ -102,6 +103,7 @@ var PlayScene = {
 
 	// LLAMA A CREAR ZOMBI CADA X SEGUNDOS
 	beginSpawning: function() {
+		this.noMercy.play();
 		this.game.time.events.repeat(Phaser.Timer.SECOND, this.numEnemies, this.spawnEnemy, this);
 	},
 

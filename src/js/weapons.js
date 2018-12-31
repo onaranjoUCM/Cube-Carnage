@@ -91,7 +91,7 @@ Weapon.shotgun = function (game) {
 	Phaser.Group.call(this, game, game.world, 'shotgunBullets', false, true, Phaser.Physics.ARCADE);
 
 	this.name = "Shotgun";
-	this.sound = game.add.audio('pistolShot');
+	this.sound = game.add.audio('shotgun');
 	this.nextFire = 0;
 	this.bulletSpeed = 1000;
 	this.fireRate = 1000;
