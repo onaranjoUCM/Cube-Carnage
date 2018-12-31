@@ -49,29 +49,29 @@ var PlayScene = {
 			this.game.add.existing(this.walls[i]);
 		}
 
-		nextLevel();
+		this.nextLevel();
 	},
 
 	update: function () {
 		// COLISIONES ZOMBIES
 		this.game.physics.arcade.collide(this.zombies, this.zombies);
 		this.game.physics.arcade.collide(this.zombies, this.runners);
-		this.game.physics.arcade.collide(this.zombies, this.walls, recalculateDir);
+		this.game.physics.arcade.collide(this.zombies, this.walls, this.recalculateDir);
 
 		// COLISIONES RUNNERS
 		this.game.physics.arcade.collide(this.runners, this.runners);
-		this.game.physics.arcade.collide(this.runners, this.walls, recalculateDir);
+		this.game.physics.arcade.collide(this.runners, this.walls, this.recalculateDir);
 
 		this.game.physics.arcade.collide(this.player, this.walls);
 
 		// COLISIONES BALAS
-		this.game.physics.arcade.collide(this.zombies, this.player.weapons[this.player.currentWeapon].hash, bulletHitEnemy);
-		this.game.physics.arcade.collide(this.runners, this.player.weapons[this.player.currentWeapon].hash, bulletHitEnemy);
-		this.game.physics.arcade.collide(this.walls, this.player.weapons[this.player.currentWeapon].hash, bulletHitWall);
+		this.game.physics.arcade.collide(this.zombies, this.player.weapons[this.player.currentWeapon].hash, this.bulletHitEnemy);
+		this.game.physics.arcade.collide(this.runners, this.player.weapons[this.player.currentWeapon].hash, this.bulletHitEnemy);
+		this.game.physics.arcade.collide(this.walls, this.player.weapons[this.player.currentWeapon].hash, this.bulletHitWall);
 
 		if (this.enemiesKilled >= this.numEnemies) {
 			this.enemiesKilled = 0;
-			nextLevel();
+			this.nextLevel();
 		}
 	}, 
 
@@ -93,98 +93,97 @@ var PlayScene = {
 		// LEVEL AND SCORE
 		this.game.debug.text( "LEVEL: " + this.level, this.game.world.width - 220, 15, 'rgba(255, 255, 255, 1)' );
 		this.game.debug.text( "SCORE: " + this.score, this.game.world.width - 120, 15, 'rgba(255, 255, 255, 1)' );
+	},
+
+	nextLevel: function() {
+		this.level++;
+		this.numEnemies = this.level *  2 + 10;
+		this.zombiesPool._group.callAll('increaseHealth');
+		this.runnersPool._group.callAll('increaseHealth');
+		this.game.time.events.add(Phaser.Timer.SECOND * 3, this.beginSpawning, this);
+	},
+
+	// LLAMA A CREAR ZOMBI CADA X SEGUNDOS
+	beginSpawning: function() {
+		this.game.time.events.repeat(Phaser.Timer.SECOND, this.numEnemies, this.spawnEnemy, this);
+	},
+
+	// CREA ZOMBI EN SPAWN ALEATORIO
+	spawnEnemy: function() {
+		this.spawnPoint = this.spawnPoints[Math.floor(Math.random() * this.spawnPoints.length)];
+		if(Math.random() < this.level / 20) {
+			this.runnersPool.spawn(this.spawnPoint.x, this.spawnPoint.y);
+		} else {
+			this.zombiesPool.spawn(this.spawnPoint.x, this.spawnPoint.y);
+		}
+	},
+
+	bulletHitEnemy: function(enemy, bullet) {
+		enemy.modifyHealth(-bullet.damage);
+		if (enemy._currentHealth == 0) {
+			PlayScene.enemiesKilled++;
+			PlayScene.score += enemy._score;
+
+			PlayScene.spawnBlood(enemy);
+			if (enemy.key == 'runner') { PlayScene.spawnReward(enemy); }
+		}
+		bullet.kill();
+	},
+
+	bulletHitWall: function(enemy, bullet) {
+		bullet.kill();
+	},
+
+	recalculateDir: function(enemy) {
+		if (enemy.angle == 90 || enemy.angle == -90) {
+			if (PlayScene.player.position.y > enemy.position.y) {
+				enemy.angle = 180;
+				enemy.body.velocity.y = enemy._speed;
+			} else {
+				enemy.angle = 0;
+				enemy.body.velocity.y = -enemy._speed;
+			}
+		}
+
+		if (enemy.angle == 0 || enemy.angle == -180) {
+			if (PlayScene.player.position.x > enemy.position.x) {
+				enemy.angle = 90;
+				enemy.body.velocity.x = enemy._speed;
+			} else {
+				enemy.angle = -90;
+				enemy.body.velocity.x = -enemy._speed;
+			}
+		}
+	},
+
+	bringAllToTop: function() {
+		this.player.bringToTop();
+		for(var i = 0; i < this.walls.length; i++) {
+			this.walls[i].bringToTop();
+		}
+		for(var i = 0; i < this.zombies.length; i++) {
+			this.zombies[i].bringToTop();
+		}
+	},
+
+	spawnBlood: function(enemy) {
+		var blood = this.game.add.sprite(enemy.position.x, enemy.position.y, 'blood');
+		blood.scale.setTo(0.1);
+		blood.anchor.setTo(0.5);
+		PlayScene.bringAllToTop();
+	},
+
+	spawnReward: function(enemy) {
+		var reward;
+		if(Math.random() < 0.5) {
+			reward = new Medikit(this.game, enemy.position, this.player);
+		} else {
+			reward = new AmmoCrate(this.game, enemy.position, this.player);
+		}
+		this.game.add.existing(reward);
+		PlayScene.bringAllToTop();
 	}
+
 };
-
-function nextLevel() {
-	PlayScene.level++;
-	PlayScene.numEnemies = PlayScene.level *  2 + 10;
-	PlayScene.zombiesPool._group.callAll('increaseHealth');
-	PlayScene.runnersPool._group.callAll('increaseHealth');
-	PlayScene.game.time.events.add(Phaser.Timer.SECOND * 3, beginSpawning, this);
-}
-
-// LLAMA A CREAR ZOMBI CADA X SEGUNDOS
-function beginSpawning() {
-	PlayScene.game.time.events.repeat(Phaser.Timer.SECOND, PlayScene.numEnemies, spawnEnemy, this);
-}
-
-// CREA ZOMBI EN SPAWN ALEATORIO
-function spawnEnemy() {
-	PlayScene.spawnPoint = PlayScene.spawnPoints[Math.floor(Math.random() * PlayScene.spawnPoints.length)];
-	if(Math.random() < PlayScene.level / 20) {
-		PlayScene.runnersPool.spawn(PlayScene.spawnPoint.x, PlayScene.spawnPoint.y);
-	} else {
-		PlayScene.zombiesPool.spawn(PlayScene.spawnPoint.x, PlayScene.spawnPoint.y);
-	}
-}
-
-function bulletHitEnemy(enemy, bullet) {
-	enemy.modifyHealth(-bullet.damage);
-	if (enemy._currentHealth == 0) {
-		PlayScene.enemiesKilled++;
-		PlayScene.score += enemy._score;
-
-		spawnBlood(enemy);
-		if (enemy.key == 'runner') { spawnReward(enemy); }
-	}
-	bullet.kill();
-}
-
-function bulletHitWall(enemy, bullet) {
-	bullet.kill();
-}
-
-function recalculateDir(enemy) {
-	if (enemy.angle == 90 || enemy.angle == -90) {
-		if (PlayScene.player.position.y > enemy.position.y) {
-			enemy.angle = 180;
-			enemy.body.velocity.y = enemy._speed;
-		} else {
-			enemy.angle = 0;
-			enemy.body.velocity.y = -enemy._speed;
-		}
-	}
-
-	if (enemy.angle == 0 || enemy.angle == -180) {
-		if (PlayScene.player.position.x > enemy.position.x) {
-			enemy.angle = 90;
-			enemy.body.velocity.x = enemy._speed;
-		} else {
-			enemy.angle = -90;
-			enemy.body.velocity.x = -enemy._speed;
-		}
-	}
-}
-
-function bringAllToTop() {
-	PlayScene.player.bringToTop();
-	for(var i = 0; i < PlayScene.walls.length; i++) {
-		PlayScene.walls[i].bringToTop();
-	}
-	for(var i = 0; i < PlayScene.zombies.length; i++) {
-		PlayScene.zombies[i].bringToTop();
-	}
-	console.log(PlayScene.walls[0]);
-	console.log(PlayScene.zombies[0])
-}
-
-function spawnBlood(enemy) {
-	var blood = PlayScene.game.add.sprite(enemy.position.x, enemy.position.y, 'blood');
-	blood.scale.setTo(0.1);
-	blood.anchor.setTo(0.5);
-	bringAllToTop();
-}
-
-function spawnReward(enemy) {
-	var reward;
-	if(Math.random() < 0.5) {
-		reward = new Medikit(PlayScene.game, enemy.position, PlayScene.player);
-	} else {
-		reward = new AmmoCrate(PlayScene.game, enemy.position, PlayScene.player);
-	}
-	PlayScene.game.add.existing(reward);
-	bringAllToTop();
-}
 
 module.exports = PlayScene;
