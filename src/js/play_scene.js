@@ -18,13 +18,10 @@ var PlayScene = {
 		this.level = 0;
 		this.score = 0;
 		this.enemiesKilled = 0;
-		this.maps = [
-			new Maps.map1(this.game),
-			new Maps.map2(this.game),
-			new Maps.map3(this.game)
-		];
-		this.walls = this.maps[1].walls;
-		this.spawnPoints = this.maps[1].spawnPoints;
+		this.maps = new Maps(this.game);
+		
+		this.walls = this.maps.map3(this.game).walls;
+		this.spawnPoints = this.maps.map3(this.game).spawnPoints;
 
 		// PLAYER
 		this.player = new Player(this.game, {x: this.game.world.width / 2, y: this.game.world.height / 2});
