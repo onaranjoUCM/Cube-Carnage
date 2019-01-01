@@ -87,9 +87,8 @@ var PlayScene = {
 		// Comprueba la salud del jugador para acabar la partida
 		if (this.player._currentHealth == 0) {
 			this.game.state.states.play.music.stop();
-			window.localStorage.setItem('playerName', this.score);
-			console.log(window.localStorage.getItem( 'playerName'));
-			this.game.state.start('menu', true, false);
+			localStorage.setItem(localStorage.getItem('playerName'), this.score);
+			this.game.state.start('scoreboard', true, false);
 		}
 	}, 
 

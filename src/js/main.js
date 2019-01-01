@@ -20,6 +20,8 @@ window.onload = function () {
 	game.state.add('menu', MenuScene);
 	game.state.add('mapsMenu', MapsMenu);
 	game.state.add('play', PlayScene);
+	game.state.add('scoreboard', Scoreboard);
+	game.state.add('nameMenu', NameMenu);
 
 	game.state.start('boot');
 };
@@ -33,7 +35,7 @@ var BootScene = {
 		this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.RIGHT);
 
 		// load here assets required for the loading screen
-		this.game.load.image('preloader_bar', 'images/preloader_bar.png');
+		this.game.load.image('preloader_bar', 'images/menus/preloader_bar.png');
 	},
 
 	create: function () {
@@ -66,7 +68,7 @@ var MenuScene = {
 		this.game.load.spritesheet('map1button', 'images/menus/map1button.png', 208, 58);
 		this.game.load.spritesheet('map2button', 'images/menus/map2button.png', 208, 58);
 		this.game.load.spritesheet('map3button', 'images/menus/map3button.png', 208, 58);
-		
+
 		// Map sprites
 		this.game.load.image('map1', 'images/menus/map1.png');
 		this.game.load.image('map2', 'images/menus/map2.png');
@@ -113,22 +115,51 @@ var MenuScene = {
 
 		this.game.add.button(520, 500, 'playButton', this.start, this, 2, 0, 1);
 
-		var spacebar = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-		spacebar.onDown.addOnce(this.start, this);
-
 		this.music = this.game.add.audio('menuMusic');
 		this.music.loop = true;
 		this.music.play();
 	},
 
 	start: function() {
-		this.game.state.start('mapsMenu', true, false, 0);
+		this.game.state.start('nameMenu', true, false, 0);
+	}
+};
+
+var NameMenu = {
+	create: function () {
+		this.playerName = '';
+		this.title = this.game.add.text(this.game.world.centerX, 250, 'Enter your name', {font: '40px Arial', fill: '#000000'});
+		this.pressEnter = this.game.add.text(this.game.world.centerX, 550, 'Press Enter to continue', {font: '20px Arial', fill: '#000000'});
+		this.textbox = this.game.add.text(330, 300, '', {font: '20px Arial', fill: '#000000'});
+		this.title.anchor.setTo(0.5);
+		this.pressEnter.anchor.setTo(0.5);
+		
+		this.game.input.keyboard.addCallbacks(this, null, null, this.keyPress);
+	},
+
+	keyPress: function(char) {
+		if (this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
+			if (NameMenu.playerName == '') {
+				localStorage.setItem('playerName', 'John Cubick');
+			} else {
+				localStorage.setItem('playerName', NameMenu.playerName);
+			}
+			this.game.state.start('mapsMenu', true, false);
+		}
+
+		if (NameMenu.playerName.length <= 12) {
+			NameMenu.playerName += char;
+			NameMenu.textbox.text = NameMenu.playerName;
+		}
 	}
 };
 
 var MapsMenu = {
 	create: function () {
-		this.game.add.text(200, 50, 'Choose a map', {font: '60px Arial', fill: '#000000'});
+		this.title = this.game.add.text(this.game.world.centerX, 100, 'Choose a map', {font: '60px Arial', fill: '#000000'});
+		this.name = this.game.add.text(this.game.world.centerX, 550, 'Name: ' + localStorage.getItem('playerName'), {font: '30px Arial', fill: '#000000'});
+		this.title.anchor.setTo(0.5);
+		this.name.anchor.setTo(0.5);
 
 		var map1 = this.game.add.sprite(50,220, 'map1');
 		var map2 = this.game.add.sprite(300,220, 'map2');
@@ -136,7 +167,7 @@ var MapsMenu = {
 		map1.scale.setTo(0.25);
 		map2.scale.setTo(0.25);
 		map3.scale.setTo(0.25);
-		
+
 		this.game.add.button(44, 400, 'map1button', this.map1Clicked, this, 2, 0, 1);
 		this.game.add.button(296, 400, 'map2button', this.map2Clicked, this, 2, 0, 1);
 		this.game.add.button(548, 400, 'map3button', this.map3Clicked, this, 2, 0, 1);
@@ -147,16 +178,52 @@ var MapsMenu = {
 		window.localStorage.setItem("map", 1);
 		this.game.state.start('play', true, false, 0);
 	},
-	
+
 	map2Clicked: function() {
 		MenuScene.music.stop();
 		window.localStorage.setItem("map", 2);
 		this.game.state.start('play', true, false, 0);
 	},
-	
+
 	map3Clicked: function() {
 		MenuScene.music.stop();
 		window.localStorage.setItem("map", 3);
 		this.game.state.start('play', true, false, 0);
+	}
+};
+
+var Scoreboard = {
+	create: function () {
+
+		var title = this.game.add.text(this.game.world.centerX, 100, 'Scoreboard', {font: '60px Arial', fill: '#000000'});
+		var returnButton = this.game.add.button(this.game.world.centerX, 500, 'map1button', this.goToMenu, this, 2, 0, 1);
+		title.anchor.setTo(0.5);
+		returnButton.anchor.setTo(0.5);
+
+		var scores = this.allStorage();
+		scores.sort(function(a, b){return b.score - a.score});
+
+		for (var i = 0; i < scores.length; i++) {
+			if (i == 5) { break; }
+			this.game.add.text(250, 200 + (40 * i), scores[i].name + ": " + scores[i].score, {font: '40px Arial', fill: '#000000'});
+		}
+	},
+
+	goToMenu: function() {
+		this.game.state.start('menu', true, false);
+	},
+
+	allStorage: function() {
+		var values = [],
+			keys = Object.keys(localStorage),
+			i = keys.length;
+
+		while ( i-- ) {
+			if (localStorage.key(i) != 'playerName' && localStorage.key(i) != 'map') {
+				values.push({name: localStorage.key(i), score: localStorage.getItem(keys[i])});
+			}
+		}
+
+		return values;
 	}
 };
