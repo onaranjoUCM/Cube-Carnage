@@ -31,14 +31,11 @@ Player.prototype.constructor = Character;
 Player.prototype.update = function() {
 	this.move();
 	this.checkInput();
-	if (this._currentHealth == 0) {
-		this.game.state.states.play.music.stop();
-		this.game.state.start('menu', true, false);
-	}
+	
 	if (this._currentHealth <= 25 && !this.heartbeatSound.isPlaying) {
 		this.heartbeatSound.play();
 	}
-	if (this._currentHealth > 25) {
+	if (this._currentHealth > 25 || this._currentHealth == 0) {
 		this.heartbeatSound.stop();
 	}
 }

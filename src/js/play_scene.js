@@ -8,7 +8,7 @@ var MapsScript = require('./maps.js');
 
 var PlayScene = {
 	create: function () {
-		// MUSICA
+		// AUDIO
 		this.noMercy = this.game.add.audio('noMercy');
 		this.music = this.game.add.audio('gameMusic');
 		this.music.stop();
@@ -20,9 +20,20 @@ var PlayScene = {
 		this.score = 0;
 		this.enemiesKilled = 0;
 		this.maps = new Maps(this.game);
-		
-		this.walls = this.maps.map3(this.game).walls;
-		this.spawnPoints = this.maps.map3(this.game).spawnPoints;
+
+		// MAPA
+		if (window.localStorage.getItem("map") == 1) {
+			this.walls = this.maps.map1(this.game).walls;
+			this.spawnPoints = this.maps.map1(this.game).spawnPoints;
+		}
+		if (window.localStorage.getItem("map") == 2) {
+			this.walls = this.maps.map2(this.game).walls;
+			this.spawnPoints = this.maps.map2(this.game).spawnPoints;
+		}
+		if (window.localStorage.getItem("map") == 3) {
+			this.walls = this.maps.map3(this.game).walls;
+			this.spawnPoints = this.maps.map3(this.game).spawnPoints;
+		}
 
 		// PLAYER
 		this.player = new Player(this.game, {x: this.game.world.width / 2, y: this.game.world.height / 2});
@@ -67,9 +78,18 @@ var PlayScene = {
 		this.game.physics.arcade.collide(this.runners, this.player.weapons[this.player.currentWeapon].hash, this.bulletHitEnemy);
 		this.game.physics.arcade.collide(this.walls, this.player.weapons[this.player.currentWeapon].hash, this.bulletHitWall);
 
+		// Comprueba los enemigos para pasar de nivel
 		if (this.enemiesKilled >= this.numEnemies) {
 			this.enemiesKilled = 0;
 			this.nextLevel();
+		}
+
+		// Comprueba la salud del jugador para acabar la partida
+		if (this.player._currentHealth == 0) {
+			this.game.state.states.play.music.stop();
+			window.localStorage.setItem('playerName', this.score);
+			console.log(window.localStorage.getItem( 'playerName'));
+			this.game.state.start('menu', true, false);
 		}
 	}, 
 
@@ -157,11 +177,10 @@ var PlayScene = {
 
 	bringAllToTop: function() {
 		this.player.bringToTop();
+		this.game.world.bringToTop(this.zombiesPool._group);
+		this.game.world.bringToTop(this.runnersPool._group);
 		for(var i = 0; i < this.walls.length; i++) {
 			this.walls[i].bringToTop();
-		}
-		for(var i = 0; i < this.zombies.length; i++) {
-			this.zombies[i].bringToTop();
 		}
 	},
 
