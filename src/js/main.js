@@ -138,7 +138,7 @@ var NameMenu = {
 	},
 
 	keyPress: function(char) {
-		if (this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
+		if (this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER) && this.game.state.current == "nameMenu"){
 			if (NameMenu.playerName == '') {
 				localStorage.setItem('playerName', 'John Cubick');
 			} else {

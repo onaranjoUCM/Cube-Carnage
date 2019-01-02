@@ -10,7 +10,9 @@ var PlayScene = {
 	create: function () {
 		// AUDIO
 		this.noMercy = this.game.add.audio('noMercy');
+		this.noMercy.volume = 0.01;
 		this.music = this.game.add.audio('gameMusic');
+		this.music.volume = 0.01;
 		this.music.stop();
 		this.music.loop = true;
 		this.music.play();
