@@ -65,6 +65,7 @@ var MenuScene = {
 		var music;
 		// Button sprites
 		this.game.load.spritesheet('playButton', 'images/menus/playButton.png', 260, 80);
+		this.game.load.spritesheet('backButton', 'images/menus/backButton.png', 161, 60);
 		this.game.load.spritesheet('map1button', 'images/menus/map1button.png', 208, 58);
 		this.game.load.spritesheet('map2button', 'images/menus/map2button.png', 208, 58);
 		this.game.load.spritesheet('map3button', 'images/menus/map3button.png', 208, 58);
@@ -84,6 +85,7 @@ var MenuScene = {
 		this.game.load.spritesheet('runner', 'images/characters/runner.png', 276, 442);
 
 		// Object sprites
+		this.game.load.image('pauseMenu', 'images/menus/pauseMenu.png');
 		this.game.load.image('wall', 'images/objects/wall.png');
 		this.game.load.image('bullet', 'images/objects/bullet.png');
 		this.game.load.image('blood', 'images/objects/blood_splatter.png');
@@ -194,7 +196,7 @@ var Scoreboard = {
 	create: function () {
 
 		var title = this.game.add.text(this.game.world.centerX, 100, 'Scoreboard', {font: '60px Arial', fill: '#000000'});
-		var returnButton = this.game.add.button(this.game.world.centerX, 500, 'map1button', this.goToMenu, this, 2, 0, 1);
+		var returnButton = this.game.add.button(this.game.world.centerX, 500, 'backButton', this.goToMenu, this, 2, 0, 1);
 		title.anchor.setTo(0.5);
 		returnButton.anchor.setTo(0.5);
 

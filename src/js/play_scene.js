@@ -58,7 +58,28 @@ var PlayScene = {
 			this.game.add.existing(this.walls[i]);
 		}
 
+		// Pause
+		this.pauseMenu;
+		this.game.input.onDown.add(this.unpause, self);
+
 		this.nextLevel();
+	},
+
+	unpause: function(event) {
+		if (PlayScene.game.paused && event.y > 440 && event.y < 500) {
+			// Continue button
+			if(event.x > 130 && event.x < 340) {
+				PlayScene.pauseMenu.destroy();
+				PlayScene.game.paused = false;
+			}
+
+			// Menu button
+			if(event.x > 480 && event.x < 680) {
+				PlayScene.game.state.states.play.music.stop();
+				PlayScene.game.state.start('menu', true, false);
+				PlayScene.game.paused = false;
+			}
+		}
 	},
 
 	update: function () {
@@ -89,6 +110,13 @@ var PlayScene = {
 			this.game.state.states.play.music.stop();
 			localStorage.setItem(localStorage.getItem('playerName'), this.score);
 			this.game.state.start('scoreboard', true, false);
+		}
+
+		// Pause menu
+		if (this.game.input.keyboard.isDown(Phaser.Keyboard.ESC)) {
+			this.game.paused = true;
+			this.pauseMenu = this.game.add.sprite(this.game.world.width/2, this.game.world.height/2, 'pauseMenu');
+			this.pauseMenu.anchor.setTo(0.5, 0.5);
 		}
 	}, 
 
