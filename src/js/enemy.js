@@ -30,28 +30,30 @@ Enemy.prototype.update = function() {
 }
 
 Enemy.prototype.updateDirection = function (player) {
-	this.animations.play('walk');
-	if (Date.now() - this._lastMove > this._updateDirectionSpeed) {
-		this._lastMove = Date.now();
-		var distanceToPlayerX = Math.abs(this.x - this.player.x);
-		var distanceToPlayerY = Math.abs(this.y - this.player.y);
-		if (distanceToPlayerX > distanceToPlayerY || this.body.blocked.up || this.body.blocked.down) {
-			this.body.velocity.y = 0;
-			if (this.x > this.player.x) {
-				this.body.velocity.x = -this._speed;
-				this.angle = -90;
-			} else if (this.x < this.player.x) {
-				this.body.velocity.x = this._speed;
-				this.angle = 90;
-			}
-		} else {
-			this.body.velocity.x = 0;
-			if (this.y > this.player.y) {
-				this.body.velocity.y = -this._speed;
-				this.angle = 0;
-			} else if (this.y < this.player.y) {
-				this.body.velocity.y = this._speed;
-				this.angle = 180;
+	if(!this.animations._anims.attack.isPlaying) {
+		this.animations.play('walk');
+		if (Date.now() - this._lastMove > this._updateDirectionSpeed) {
+			this._lastMove = Date.now();
+			var distanceToPlayerX = Math.abs(this.x - this.player.x);
+			var distanceToPlayerY = Math.abs(this.y - this.player.y);
+			if (distanceToPlayerX > distanceToPlayerY || this.body.blocked.up || this.body.blocked.down) {
+				this.body.velocity.y = 0;
+				if (this.x > this.player.x) {
+					this.body.velocity.x = -this._speed;
+					this.angle = -90;
+				} else if (this.x < this.player.x) {
+					this.body.velocity.x = this._speed;
+					this.angle = 90;
+				}
+			} else {
+				this.body.velocity.x = 0;
+				if (this.y > this.player.y) {
+					this.body.velocity.y = -this._speed;
+					this.angle = 0;
+				} else if (this.y < this.player.y) {
+					this.body.velocity.y = this._speed;
+					this.angle = 180;
+				}
 			}
 		}
 	}
@@ -64,6 +66,7 @@ Enemy.prototype.increaseHealth = function () {
 Enemy.prototype.attack = function () {
 	if (this.game.time.time < this.nextAttack) { return; }
 
+	this.animations.play('attack', this._attackAnimationSpeed, false);
 	this._lastAttackTime = Date.now();
 	this.player.modifyHealth(-this.damage);
 	this.sound.volume = 2;
@@ -77,21 +80,24 @@ Zombie = function Zombie(game, player, position) {
 	this.damage = 10;
 
 	this._attackSpeed = 1000;
+	this._attackAnimationSpeed = 2;
 	this._updateDirectionSpeed = 1000;
-	this.animations.add('walk', [1, 2], 2, true);
+	this.animations.add('walk', [4, 5], 2, true);
+	this.animations.add('attack', [1, 2], 2, true);
 }
 
 Zombie.prototype = Object.create(Enemy.prototype);
 Zombie.prototype.constructor = Enemy;
-
 // Runner
 Runner = function Runner(game, player, position) {
-	Enemy.apply(this, [game, player, 'runner', position, 150, 8, 10]);
+	Enemy.apply(this, [game, player, 'runner', position, 150, 8, 20]);
 	this.damage = 10;
 
 	this._attackSpeed = 500;
+	this._attackAnimationSpeed = 4;
 	this._updateDirectionSpeed = 300;
-	this.animations.add('walk', [1, 2], 4, true);
+	this.animations.add('walk', [4, 5], 2, true);
+	this.animations.add('attack', [1, 2], 2, true);
 }
 
 Runner.prototype = Object.create(Enemy.prototype);

@@ -80,10 +80,8 @@ var MenuScene = {
 		this.game.load.spritesheet('playerShotgun', 'images/characters/playerWalkingShotgun.png', 276, 584);
 
 		// Enemy sprites
-		this.game.load.spritesheet('zombie', 'images/characters/zombieWalk.png', 276, 424);
-		this.game.load.spritesheet('zombieAttack', 'images/characters/zombieAttack.png', 276, 442);
-		this.game.load.spritesheet('runner', 'images/characters/runnerWalk.png', 276, 424);
-		this.game.load.spritesheet('runnerAttack', 'images/characters/runnerAttack.png', 276, 442);
+		this.game.load.spritesheet('zombie', 'images/characters/zombie.png', 276, 442);
+		this.game.load.spritesheet('runner', 'images/characters/runner.png', 276, 442);
 
 		// Object sprites
 		this.game.load.image('wall', 'images/objects/wall.png');
