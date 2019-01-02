@@ -56,10 +56,11 @@ Enemy = function Enemy(game, player, graphic, position, speed, health, score) {
 	this.player = player;
 	this._lastAttackTime = Date.now();
 	this._lastMove = Date.now();
-	
+	this.sound = this.game.add.audio('zombieAttack');
+
 	this.game.physics.arcade.enable(this, Phaser.Physics.ARCADE);
 	this.body.collideWorldBounds = true;
-	
+
 	this.frame = 0;
 	this.anchor.setTo(0.5, 0.55);
 	this.body.setSize(270, 270, 0, 100);
@@ -78,28 +79,30 @@ Enemy.prototype.update = function() {
 }
 
 Enemy.prototype.updateDirection = function (player) {
-	this.animations.play('walk');
-	if (Date.now() - this._lastMove > this._updateDirectionSpeed) {
-		this._lastMove = Date.now();
-		var distanceToPlayerX = Math.abs(this.x - this.player.x);
-		var distanceToPlayerY = Math.abs(this.y - this.player.y);
-		if (distanceToPlayerX > distanceToPlayerY || this.body.blocked.up || this.body.blocked.down) {
-			this.body.velocity.y = 0;
-			if (this.x > this.player.x) {
-				this.body.velocity.x = -this._speed;
-				this.angle = -90;
-			} else if (this.x < this.player.x) {
-				this.body.velocity.x = this._speed;
-				this.angle = 90;
-			}
-		} else {
-			this.body.velocity.x = 0;
-			if (this.y > this.player.y) {
-				this.body.velocity.y = -this._speed;
-				this.angle = 0;
-			} else if (this.y < this.player.y) {
-				this.body.velocity.y = this._speed;
-				this.angle = 180;
+	if(!this.animations._anims.attack.isPlaying) {
+		this.animations.play('walk');
+		if (Date.now() - this._lastMove > this._updateDirectionSpeed) {
+			this._lastMove = Date.now();
+			var distanceToPlayerX = Math.abs(this.x - this.player.x);
+			var distanceToPlayerY = Math.abs(this.y - this.player.y);
+			if (distanceToPlayerX > distanceToPlayerY || this.body.blocked.up || this.body.blocked.down) {
+				this.body.velocity.y = 0;
+				if (this.x > this.player.x) {
+					this.body.velocity.x = -this._speed;
+					this.angle = -90;
+				} else if (this.x < this.player.x) {
+					this.body.velocity.x = this._speed;
+					this.angle = 90;
+				}
+			} else {
+				this.body.velocity.x = 0;
+				if (this.y > this.player.y) {
+					this.body.velocity.y = -this._speed;
+					this.angle = 0;
+				} else if (this.y < this.player.y) {
+					this.body.velocity.y = this._speed;
+					this.angle = 180;
+				}
 			}
 		}
 	}
@@ -110,36 +113,40 @@ Enemy.prototype.increaseHealth = function () {
 };
 
 Enemy.prototype.attack = function () {
-	if (Date.now() - this._lastAttackTime > this._attackSpeed) {
-		this._lastAttackTime = Date.now();
-		this.player.modifyHealth(-this.damage);
-		this.sound = this.game.add.audio('zombieAttack');
-		this.sound.volume = 2;
-		this.sound.play();
-	}
+	if (this.game.time.time < this.nextAttack) { return; }
+
+	this.animations.play('attack', this._attackAnimationSpeed, false);
+	this._lastAttackTime = Date.now();
+	this.player.modifyHealth(-this.damage);
+	this.sound.volume = 2;
+	this.sound.play();
+	this.nextAttack = this.game.time.time + this._attackSpeed;
 };
 
 // Zombie
 Zombie = function Zombie(game, player, position) {
 	Enemy.apply(this, [game, player, 'zombie', position, 50, 8, 10]);
 	this.damage = 10;
-	
+
 	this._attackSpeed = 1000;
+	this._attackAnimationSpeed = 2;
 	this._updateDirectionSpeed = 1000;
-	this.animations.add('walk', [1, 2], 2, true);
+	this.animations.add('walk', [4, 5], 2, true);
+	this.animations.add('attack', [1, 2], 2, true);
 }
 
 Zombie.prototype = Object.create(Enemy.prototype);
 Zombie.prototype.constructor = Enemy;
-
 // Runner
 Runner = function Runner(game, player, position) {
-	Enemy.apply(this, [game, player, 'runner', position, 150, 8, 10]);
+	Enemy.apply(this, [game, player, 'runner', position, 150, 8, 20]);
 	this.damage = 10;
-	
+
 	this._attackSpeed = 500;
+	this._attackAnimationSpeed = 4;
 	this._updateDirectionSpeed = 300;
-	this.animations.add('walk', [1, 2], 4, true);
+	this.animations.add('walk', [4, 5], 2, true);
+	this.animations.add('attack', [1, 2], 2, true);
 }
 
 Runner.prototype = Object.create(Enemy.prototype);
@@ -165,15 +172,24 @@ window.onload = function () {
 	game.state.add('boot', BootScene);
 	game.state.add('preloader', PreloaderScene);
 	game.state.add('menu', MenuScene);
+	game.state.add('mapsMenu', MapsMenu);
 	game.state.add('play', PlayScene);
+	game.state.add('scoreboard', Scoreboard);
+	game.state.add('nameMenu', NameMenu);
 
 	game.state.start('boot');
 };
 
 var BootScene = {
 	preload: function () {
+		this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
+		this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.UP);
+		this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.DOWN);
+		this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.LEFT);
+		this.game.input.keyboard.addKeyCapture(Phaser.Keyboard.RIGHT);
+
 		// load here assets required for the loading screen
-		this.game.load.image('preloader_bar', 'images/preloader_bar.png');
+		this.game.load.image('preloader_bar', 'images/menus/preloader_bar.png');
 	},
 
 	create: function () {
@@ -188,9 +204,8 @@ var PreloaderScene = {
 		this.loadingBar.anchor.setTo(0, 0.5);
 		this.load.setPreloadSprite(this.loadingBar);
 
-		this.game.load.image('title', 'images/CubeCarnage.png');
-		this.game.load.image('logo', 'images/kitten.png');
-		this.game.load.image('wall', 'images/wall.png');
+		this.game.load.image('title', 'images/menus/CubeCarnage.png');
+		this.game.load.image('logo', 'images/menus/kitten.png');
 		this.game.load.audio('menuMusic', 'audio/Heroic_Intrusion.ogg');
 	},
 
@@ -202,21 +217,47 @@ var PreloaderScene = {
 var MenuScene = {
 	preload: function () {
 		var music;
-		this.game.load.spritesheet('playerPistol', 'images/playerWalkingPistol.png', 276, 584);
-		this.game.load.spritesheet('playerRifle', 'images/playerWalkingRifle.png', 276, 584);
-		this.game.load.spritesheet('playerShotgun', 'images/playerWalkingShotgun.png', 276, 584);
-		this.game.load.spritesheet('zombie', 'images/zombieWalk.png', 276, 424);
-		this.game.load.spritesheet('zombieAttack', 'images/zombieAttack.png', 276, 442);
-		this.game.load.spritesheet('runner', 'images/runnerWalk.png', 276, 424);
-		this.game.load.spritesheet('runnerAttack', 'images/runnerAttack.png', 276, 442);
-		this.game.load.image('bullet', 'images/bullet.png');
-		this.game.load.image('blood', 'images/blood_splatter.png');
-		this.game.load.image('medikit', 'images/medikit.png');
-		this.game.load.image('ammocrate', 'images/ammocrate.png');
-		
+		// Button sprites
+		this.game.load.spritesheet('playButton', 'images/menus/playButton.png', 260, 80);
+		this.game.load.spritesheet('backButton', 'images/menus/backButton.png', 161, 60);
+		this.game.load.spritesheet('map1button', 'images/menus/map1button.png', 208, 58);
+		this.game.load.spritesheet('map2button', 'images/menus/map2button.png', 208, 58);
+		this.game.load.spritesheet('map3button', 'images/menus/map3button.png', 208, 58);
+
+		// Map sprites
+		this.game.load.image('map1', 'images/menus/map1.png');
+		this.game.load.image('map2', 'images/menus/map2.png');
+		this.game.load.image('map3', 'images/menus/map3.png');
+
+		// Player sprites
+		this.game.load.spritesheet('playerPistol', 'images/characters/playerWalkingPistol.png', 276, 584);
+		this.game.load.spritesheet('playerRifle', 'images/characters/playerWalkingRifle.png', 276, 584);
+		this.game.load.spritesheet('playerShotgun', 'images/characters/playerWalkingShotgun.png', 276, 584);
+
+		// Enemy sprites
+		this.game.load.spritesheet('zombie', 'images/characters/zombie.png', 276, 442);
+		this.game.load.spritesheet('runner', 'images/characters/runner.png', 276, 442);
+
+		// Object sprites
+		this.game.load.image('pauseMenu', 'images/menus/pauseMenu.png');
+		this.game.load.image('wall', 'images/objects/wall.png');
+		this.game.load.image('bullet', 'images/objects/bullet.png');
+		this.game.load.image('blood', 'images/objects/blood_splatter.png');
+		this.game.load.image('medikit', 'images/objects/medikit.png');
+		this.game.load.image('ammocrate', 'images/objects/ammocrate.png');
+
+		// Music
 		this.game.load.audio('gameMusic', 'audio/Humble_Match.ogg');
+
+		// Audio effects
 		this.game.load.audio('pistolShot', 'audio/pistolShot.mp3');
 		this.game.load.audio('zombieAttack', 'audio/zombieAttack.mp3');
+		this.game.load.audio('emptyGun', 'audio/emptyGun.mp3');
+		this.game.load.audio('heal', 'audio/heal.mp3');
+		this.game.load.audio('heartbeat', 'audio/heartbeat.mp3');
+		this.game.load.audio('shotgun', 'audio/shotgun.mp3');
+		this.game.load.audio('switchWeapon', 'audio/switchWeapon.mp3');
+		this.game.load.audio('noMercy', 'audio/noMercy.mp3');
 	},
 
 	create: function () {
@@ -224,159 +265,245 @@ var MenuScene = {
 		title.scale.setTo(0.55,1.31);
 		title.anchor.setTo(0.5,0.5);
 
-		var logo = this.game.add.sprite(620,500, 'logo');
+		this.game.add.sprite(-40,500, 'logo');
 
-		var nameLabel = this.game.add.text(80, this.game.world.height - 80, 'Press SPACEBAR to play', {font: '30px Arial', fill: '#000000'});
+		this.game.add.button(520, 500, 'playButton', this.start, this, 2, 0, 1);
 
-		var spacebar = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-		spacebar.onDown.addOnce(this.start, this);
-		
 		this.music = this.game.add.audio('menuMusic');
 		this.music.loop = true;
 		this.music.play();
 	},
 
 	start: function() {
-		this.music.stop();
+		this.game.state.start('nameMenu', true, false, 0);
+	}
+};
+
+var NameMenu = {
+	create: function () {
+		this.playerName = '';
+		this.title = this.game.add.text(this.game.world.centerX, 250, 'Enter your name', {font: '40px Arial', fill: '#000000'});
+		this.pressEnter = this.game.add.text(this.game.world.centerX, 550, 'Press Enter to continue', {font: '20px Arial', fill: '#000000'});
+		this.textbox = this.game.add.text(330, 300, '', {font: '20px Arial', fill: '#000000'});
+		this.title.anchor.setTo(0.5);
+		this.pressEnter.anchor.setTo(0.5);
+		
+		this.game.input.keyboard.addCallbacks(this, null, null, this.keyPress);
+	},
+
+	keyPress: function(char) {
+		if (this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
+			if (NameMenu.playerName == '') {
+				localStorage.setItem('playerName', 'John Cubick');
+			} else {
+				localStorage.setItem('playerName', NameMenu.playerName);
+			}
+			this.game.state.start('mapsMenu', true, false);
+		}
+
+		if (NameMenu.playerName.length <= 12) {
+			NameMenu.playerName += char;
+			NameMenu.textbox.text = NameMenu.playerName;
+		}
+	}
+};
+
+var MapsMenu = {
+	create: function () {
+		this.title = this.game.add.text(this.game.world.centerX, 100, 'Choose a map', {font: '60px Arial', fill: '#000000'});
+		this.name = this.game.add.text(this.game.world.centerX, 550, 'Name: ' + localStorage.getItem('playerName'), {font: '30px Arial', fill: '#000000'});
+		this.title.anchor.setTo(0.5);
+		this.name.anchor.setTo(0.5);
+
+		var map1 = this.game.add.sprite(50,220, 'map1');
+		var map2 = this.game.add.sprite(300,220, 'map2');
+		var map3 = this.game.add.sprite(550,220, 'map3');
+		map1.scale.setTo(0.25);
+		map2.scale.setTo(0.25);
+		map3.scale.setTo(0.25);
+
+		this.game.add.button(44, 400, 'map1button', this.map1Clicked, this, 2, 0, 1);
+		this.game.add.button(296, 400, 'map2button', this.map2Clicked, this, 2, 0, 1);
+		this.game.add.button(548, 400, 'map3button', this.map3Clicked, this, 2, 0, 1);
+	},
+
+	map1Clicked: function() {
+		MenuScene.music.stop();
+		window.localStorage.setItem("map", 1);
+		this.game.state.start('play', true, false, 0);
+	},
+
+	map2Clicked: function() {
+		MenuScene.music.stop();
+		window.localStorage.setItem("map", 2);
+		this.game.state.start('play', true, false, 0);
+	},
+
+	map3Clicked: function() {
+		MenuScene.music.stop();
+		window.localStorage.setItem("map", 3);
 		this.game.state.start('play', true, false, 0);
 	}
 };
 
+var Scoreboard = {
+	create: function () {
+
+		var title = this.game.add.text(this.game.world.centerX, 100, 'Scoreboard', {font: '60px Arial', fill: '#000000'});
+		var returnButton = this.game.add.button(this.game.world.centerX, 500, 'backButton', this.goToMenu, this, 2, 0, 1);
+		title.anchor.setTo(0.5);
+		returnButton.anchor.setTo(0.5);
+
+		var scores = this.allStorage();
+		scores.sort(function(a, b){return b.score - a.score});
+
+		for (var i = 0; i < scores.length; i++) {
+			if (i == 5) { break; }
+			this.game.add.text(250, 200 + (40 * i), scores[i].name + ": " + scores[i].score, {font: '40px Arial', fill: '#000000'});
+		}
+	},
+
+	goToMenu: function() {
+		this.game.state.start('menu', true, false);
+	},
+
+	allStorage: function() {
+		var values = [],
+			keys = Object.keys(localStorage),
+			i = keys.length;
+
+		while ( i-- ) {
+			if (localStorage.key(i) != 'playerName' && localStorage.key(i) != 'map') {
+				values.push({name: localStorage.key(i), score: localStorage.getItem(keys[i])});
+			}
+		}
+
+		return values;
+	}
+};
 },{"./play_scene.js":7}],5:[function(require,module,exports){
-Maps = {};
+Maps = function(game) { 
+	this.map1 = function (game) {
+		this.spawnPoints = [
+			{x: game.world.width / 2, y: 0, angle: 180},
+			{x: game.world.width / 2, y: game.world.height - 0, angle: 0},
+			{x: 0, y: game.world.height / 2, angle: 90},
+			{x: game.world.width - 0, y: game.world.height / 2, angle: 270},
+		];
 
-// MAP 1
-Maps.map1 = function (game) {
-	this.spawnPoints = [
-		{x: game.world.width / 2, y: 0, angle: 180},
-		{x: game.world.width / 2, y: game.world.height - 0, angle: 0},
-		{x: 0, y: game.world.height / 2, angle: 90},
-		{x: game.world.width - 0, y: game.world.height / 2, angle: 270},
-	];
+		this.walls = [];
+		this.walls.push(new MapObject(game, 'wall', {x: 180, y: 10}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 620, y: 10}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 180, y: 590}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 620, y: 590}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 10, y: 130}, 20, 260));
+		this.walls.push(new MapObject(game, 'wall', {x: 10, y: 470}, 20, 260));
+		this.walls.push(new MapObject(game, 'wall', {x: 790, y: 130}, 20, 260));
+		this.walls.push(new MapObject(game, 'wall', {x: 790, y: 470}, 20, 260));
 
-	this.walls = [];
-	this.walls.push(new MapObject(game, 'wall', {x: 180, y: 10}, 360, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 620, y: 10}, 360, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 180, y: 590}, 360, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 620, y: 590}, 360, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 10, y: 130}, 20, 260));
-	this.walls.push(new MapObject(game, 'wall', {x: 10, y: 470}, 20, 260));
-	this.walls.push(new MapObject(game, 'wall', {x: 790, y: 130}, 20, 260));
-	this.walls.push(new MapObject(game, 'wall', {x: 790, y: 470}, 20, 260));
+		this.walls.push(new MapObject(game, 'wall', {x: 400, y: 150}, 400, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 400, y: 450}, 400, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 130, y: 300}, 20, 160));
+		this.walls.push(new MapObject(game, 'wall', {x: 650, y: 300}, 20, 160));
 
-	this.walls.push(new MapObject(game, 'wall', {x: 400, y: 150}, 400, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 400, y: 450}, 400, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 130, y: 300}, 20, 160));
-	this.walls.push(new MapObject(game, 'wall', {x: 650, y: 300}, 20, 160));
+		return this;
+	};
 
-	return this;
+	this.map2 = function (game) {
+		this.spawnPoints = [
+			{x: 20, y: 50, angle: 90},
+			{x: game.world.width - 20, y: 50, angle: -90},
+			{x: 20, y: game.world.height - 50, angle: 90},
+			{x: game.world.width - 20, y: game.world.height - 50, angle: -90}
+		];
+
+		this.walls = [];
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width / 2, y: 10}, game.world.width, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width / 2, y: game.world.height - 10}, game.world.width, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 10, y: game.world.height / 2}, 20, game.world.height - 160));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 10, y: game.world.height / 2}, 20, game.world.height - 160));
+
+		this.walls.push(new MapObject(game, 'wall', {x: 230, y: 90}, 260, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 230, y: game.world.height - 90}, 260, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: 90}, 260, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: game.world.height - 90}, 260, 20));
+
+		this.walls.push(new MapObject(game, 'wall', {x: 230, y: 260}, 260, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 230, y: game.world.height - 260}, 260, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: 260}, 260, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: game.world.height - 260}, 260, 20));
+
+		this.walls.push(new MapObject(game, 'wall', {x: 110, y: 175}, 20, 80));
+		this.walls.push(new MapObject(game, 'wall', {x: 110, y: game.world.height - 175}, 20, 80));
+		this.walls.push(new MapObject(game, 'wall', {x: 350, y: 175}, 20, 80));
+		this.walls.push(new MapObject(game, 'wall', {x: 350, y: game.world.height - 175}, 20, 80));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: 175}, 20, 80));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: game.world.height - 175}, 20, 80));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 110, y: 175}, 20, 80));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 110, y: game.world.height - 175}, 20, 80));
+
+		this.walls.push(new MapObject(game, 'wall', {x: 230, y: 175}, 120, 60));
+		this.walls.push(new MapObject(game, 'wall', {x: 230, y: game.world.height - 175}, 120, 60));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: 175}, 120, 60));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: game.world.height - 175}, 120, 60));
+
+		return this;
+	};
+
+	this.map3 = function (game) {
+		this.spawnPoints = [
+			{x: game.world.width / 2, y: 0, angle: 180},
+			{x: game.world.width / 2, y: game.world.height - 0, angle: 0},
+			{x: 0, y: game.world.height / 2, angle: 90},
+			{x: game.world.width - 0, y: game.world.height / 2, angle: 270},
+			{x: 20, y: 50, angle: 90},
+			{x: game.world.width - 20, y: 50, angle: -90},
+			{x: 20, y: game.world.height - 50, angle: 90},
+			{x: game.world.width - 20, y: game.world.height - 50, angle: -90}
+		];
+
+		this.walls = [];
+		this.walls.push(new MapObject(game, 'wall', {x: 180, y: 10}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 180, y: 10}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 180, y: game.world.height - 10}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 180, y: game.world.height - 10}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 10, y: 160}, 20, 200));
+		this.walls.push(new MapObject(game, 'wall', {x: 10, y: game.world.height - 160}, 20, 200));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 10, y: 160}, 20, 200));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 10, y: game.world.height - 160}, 20, 200));
+
+		this.walls.push(new MapObject(game, 'wall', {x: 310, y: 120}, 100, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 170, y: 120}, 80, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 310, y: 120}, 100, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width -170, y: 120}, 80, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 310, y: game.world.height - 120}, 100, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 170, y: game.world.height - 120}, 80, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 310, y: game.world.height - 120}, 100, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width -170, y: game.world.height - 120}, 80, 20));
+
+		this.walls.push(new MapObject(game, 'wall', {x: 120, y: 185}, 20, 150));
+		this.walls.push(new MapObject(game, 'wall', {x: 120, y: game.world.height - 185}, 20, 150));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 120, y: 185}, 20, 150));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 120, y: game.world.height - 185}, 20, 150));
+
+		this.walls.push(new MapObject(game, 'wall', {x: 200, y: 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: 200, y: game.world.height - 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 200, y: 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 200, y: game.world.height - 210}, 20, 100));
+
+		this.walls.push(new MapObject(game, 'wall', {x: 270, y: 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: 270, y: game.world.height - 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 270, y: 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 270, y: game.world.height - 210}, 20, 100));
+
+		this.walls.push(new MapObject(game, 'wall', {x: 350, y: 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: 350, y: game.world.height - 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: game.world.height - 210}, 20, 100));
+
+		return this;
+	};
 };
-
-Maps.map1.prototype = Object.create(Phaser.Group.prototype);
-Maps.map1.prototype.constructor = Maps.map1;
-
-// MAP 2
-Maps.map2 = function (game) {
-	this.spawnPoints = [
-		{x: 20, y: 50, angle: 90},
-		{x: game.world.width - 20, y: 50, angle: -90},
-		{x: 20, y: game.world.height - 50, angle: 90},
-		{x: game.world.width - 20, y: game.world.height - 50, angle: -90}
-	];
-
-	this.walls = [];
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width / 2, y: 10}, game.world.width, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width / 2, y: game.world.height - 10}, game.world.width, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 10, y: game.world.height / 2}, 20, game.world.height - 160));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 10, y: game.world.height / 2}, 20, game.world.height - 160));
-	
-	this.walls.push(new MapObject(game, 'wall', {x: 230, y: 90}, 260, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 230, y: game.world.height - 90}, 260, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: 90}, 260, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: game.world.height - 90}, 260, 20));
-	
-	this.walls.push(new MapObject(game, 'wall', {x: 230, y: 260}, 260, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 230, y: game.world.height - 260}, 260, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: 260}, 260, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: game.world.height - 260}, 260, 20));
-	
-	this.walls.push(new MapObject(game, 'wall', {x: 110, y: 175}, 20, 80));
-	this.walls.push(new MapObject(game, 'wall', {x: 110, y: game.world.height - 175}, 20, 80));
-	this.walls.push(new MapObject(game, 'wall', {x: 350, y: 175}, 20, 80));
-	this.walls.push(new MapObject(game, 'wall', {x: 350, y: game.world.height - 175}, 20, 80));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: 175}, 20, 80));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: game.world.height - 175}, 20, 80));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 110, y: 175}, 20, 80));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 110, y: game.world.height - 175}, 20, 80));
-	
-	this.walls.push(new MapObject(game, 'wall', {x: 230, y: 175}, 120, 60));
-	this.walls.push(new MapObject(game, 'wall', {x: 230, y: game.world.height - 175}, 120, 60));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: 175}, 120, 60));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: game.world.height - 175}, 120, 60));
-
-	return this;
-};
-
-Maps.map2.prototype = Object.create(Phaser.Group.prototype);
-Maps.map2.prototype.constructor = Maps.map2;
-
-// MAP 3
-Maps.map3 = function (game) {
-	this.spawnPoints = [
-		{x: game.world.width / 2, y: 0, angle: 180},
-		{x: game.world.width / 2, y: game.world.height - 0, angle: 0},
-		{x: 0, y: game.world.height / 2, angle: 90},
-		{x: game.world.width - 0, y: game.world.height / 2, angle: 270},
-		{x: 20, y: 50, angle: 90},
-		{x: game.world.width - 20, y: 50, angle: -90},
-		{x: 20, y: game.world.height - 50, angle: 90},
-		{x: game.world.width - 20, y: game.world.height - 50, angle: -90}
-	];
-
-	this.walls = [];
-	this.walls.push(new MapObject(game, 'wall', {x: 180, y: 10}, 360, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 180, y: 10}, 360, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 180, y: game.world.height - 10}, 360, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 180, y: game.world.height - 10}, 360, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 10, y: 160}, 20, 200));
-	this.walls.push(new MapObject(game, 'wall', {x: 10, y: game.world.height - 160}, 20, 200));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 10, y: 160}, 20, 200));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 10, y: game.world.height - 160}, 20, 200));
-	
-	this.walls.push(new MapObject(game, 'wall', {x: 310, y: 120}, 100, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 170, y: 120}, 80, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 310, y: 120}, 100, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width -170, y: 120}, 80, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 310, y: game.world.height - 120}, 100, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: 170, y: game.world.height - 120}, 80, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 310, y: game.world.height - 120}, 100, 20));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width -170, y: game.world.height - 120}, 80, 20));
-	
-	this.walls.push(new MapObject(game, 'wall', {x: 120, y: 185}, 20, 150));
-	this.walls.push(new MapObject(game, 'wall', {x: 120, y: game.world.height - 185}, 20, 150));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 120, y: 185}, 20, 150));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 120, y: game.world.height - 185}, 20, 150));
-
-	this.walls.push(new MapObject(game, 'wall', {x: 200, y: 210}, 20, 100));
-	this.walls.push(new MapObject(game, 'wall', {x: 200, y: game.world.height - 210}, 20, 100));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 200, y: 210}, 20, 100));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 200, y: game.world.height - 210}, 20, 100));
-	
-	this.walls.push(new MapObject(game, 'wall', {x: 270, y: 210}, 20, 100));
-	this.walls.push(new MapObject(game, 'wall', {x: 270, y: game.world.height - 210}, 20, 100));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 270, y: 210}, 20, 100));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 270, y: game.world.height - 210}, 20, 100));
-	
-	this.walls.push(new MapObject(game, 'wall', {x: 350, y: 210}, 20, 100));
-	this.walls.push(new MapObject(game, 'wall', {x: 350, y: game.world.height - 210}, 20, 100));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: 210}, 20, 100));
-	this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: game.world.height - 210}, 20, 100));
-	
-	return this;
-};
-
-Maps.map3.prototype = Object.create(Phaser.Group.prototype);
-Maps.map3.prototype.constructor = Maps.map3;
 },{}],6:[function(require,module,exports){
 MapObject = function MapObject(game, graphic, position, w, h) {
 	Phaser.Sprite.call(this, game, position.x, position.y, graphic);
@@ -400,6 +527,7 @@ Medikit = function Medikit(game, position, player) {
 	MapObject.apply(this, [game, 'medikit', position, 20, 20]);
 	
 	this.player = player;
+	this.sound = game.add.audio('heal');
 }
 
 Medikit.prototype = Object.create(MapObject.prototype);
@@ -410,6 +538,7 @@ Medikit.prototype.update = function() {
 }
 
 Medikit.prototype.restoreHealth = function() {
+	this.sound.play();
 	this.player.modifyHealth(20);
 	this.destroy();
 }
@@ -419,6 +548,7 @@ AmmoCrate = function AmmoCrate(game, position, player) {
 	MapObject.apply(this, [game, 'ammocrate', position, 20, 20]);
 	
 	this.player = player;
+	this.sound = game.add.audio('switchWeapon');
 }
 
 AmmoCrate.prototype = Object.create(MapObject.prototype);
@@ -429,6 +559,7 @@ AmmoCrate.prototype.update = function() {
 }
 
 AmmoCrate.prototype.restoreAmmo = function() {
+	this.sound.play();
 	this.player.restoreAmmo(25, 5);
 	this.destroy();
 }
@@ -443,7 +574,8 @@ var MapsScript = require('./maps.js');
 
 var PlayScene = {
 	create: function () {
-		// MUSICA
+		// AUDIO
+		this.noMercy = this.game.add.audio('noMercy');
 		this.music = this.game.add.audio('gameMusic');
 		this.music.stop();
 		this.music.loop = true;
@@ -453,13 +585,21 @@ var PlayScene = {
 		this.level = 0;
 		this.score = 0;
 		this.enemiesKilled = 0;
-		this.maps = [
-			new Maps.map1(this.game),
-			new Maps.map2(this.game),
-			new Maps.map3(this.game)
-		];
-		this.walls = this.maps[1].walls;
-		this.spawnPoints = this.maps[1].spawnPoints;
+		this.maps = new Maps(this.game);
+
+		// MAPA
+		if (window.localStorage.getItem("map") == 1) {
+			this.walls = this.maps.map1(this.game).walls;
+			this.spawnPoints = this.maps.map1(this.game).spawnPoints;
+		}
+		if (window.localStorage.getItem("map") == 2) {
+			this.walls = this.maps.map2(this.game).walls;
+			this.spawnPoints = this.maps.map2(this.game).spawnPoints;
+		}
+		if (window.localStorage.getItem("map") == 3) {
+			this.walls = this.maps.map3(this.game).walls;
+			this.spawnPoints = this.maps.map3(this.game).spawnPoints;
+		}
 
 		// PLAYER
 		this.player = new Player(this.game, {x: this.game.world.width / 2, y: this.game.world.height / 2});
@@ -484,29 +624,65 @@ var PlayScene = {
 			this.game.add.existing(this.walls[i]);
 		}
 
-		nextLevel();
+		// Pause
+		this.pauseMenu;
+		this.game.input.onDown.add(this.unpause, self);
+
+		this.nextLevel();
+	},
+
+	unpause: function(event) {
+		if (PlayScene.game.paused && event.y > 440 && event.y < 500) {
+			// Continue button
+			if(event.x > 130 && event.x < 340) {
+				PlayScene.pauseMenu.destroy();
+				PlayScene.game.paused = false;
+			}
+
+			// Menu button
+			if(event.x > 480 && event.x < 680) {
+				PlayScene.game.state.states.play.music.stop();
+				PlayScene.game.state.start('menu', true, false);
+				PlayScene.game.paused = false;
+			}
+		}
 	},
 
 	update: function () {
 		// COLISIONES ZOMBIES
 		this.game.physics.arcade.collide(this.zombies, this.zombies);
 		this.game.physics.arcade.collide(this.zombies, this.runners);
-		this.game.physics.arcade.collide(this.zombies, this.walls, recalculateDir);
+		this.game.physics.arcade.collide(this.zombies, this.walls, this.recalculateDir);
 
 		// COLISIONES RUNNERS
 		this.game.physics.arcade.collide(this.runners, this.runners);
-		this.game.physics.arcade.collide(this.runners, this.walls, recalculateDir);
+		this.game.physics.arcade.collide(this.runners, this.walls, this.recalculateDir);
 
 		this.game.physics.arcade.collide(this.player, this.walls);
 
 		// COLISIONES BALAS
-		this.game.physics.arcade.collide(this.zombies, this.player.weapons[this.player.currentWeapon].hash, bulletHitEnemy);
-		this.game.physics.arcade.collide(this.runners, this.player.weapons[this.player.currentWeapon].hash, bulletHitEnemy);
-		this.game.physics.arcade.collide(this.walls, this.player.weapons[this.player.currentWeapon].hash, bulletHitWall);
+		this.game.physics.arcade.collide(this.zombies, this.player.weapons[this.player.currentWeapon].hash, this.bulletHitEnemy);
+		this.game.physics.arcade.collide(this.runners, this.player.weapons[this.player.currentWeapon].hash, this.bulletHitEnemy);
+		this.game.physics.arcade.collide(this.walls, this.player.weapons[this.player.currentWeapon].hash, this.bulletHitWall);
 
+		// Comprueba los enemigos para pasar de nivel
 		if (this.enemiesKilled >= this.numEnemies) {
 			this.enemiesKilled = 0;
-			nextLevel();
+			this.nextLevel();
+		}
+
+		// Comprueba la salud del jugador para acabar la partida
+		if (this.player._currentHealth == 0) {
+			this.game.state.states.play.music.stop();
+			localStorage.setItem(localStorage.getItem('playerName'), this.score);
+			this.game.state.start('scoreboard', true, false);
+		}
+
+		// Pause menu
+		if (this.game.input.keyboard.isDown(Phaser.Keyboard.ESC)) {
+			this.game.paused = true;
+			this.pauseMenu = this.game.add.sprite(this.game.world.width/2, this.game.world.height/2, 'pauseMenu');
+			this.pauseMenu.anchor.setTo(0.5, 0.5);
 		}
 	}, 
 
@@ -528,99 +704,98 @@ var PlayScene = {
 		// LEVEL AND SCORE
 		this.game.debug.text( "LEVEL: " + this.level, this.game.world.width - 220, 15, 'rgba(255, 255, 255, 1)' );
 		this.game.debug.text( "SCORE: " + this.score, this.game.world.width - 120, 15, 'rgba(255, 255, 255, 1)' );
+	},
+
+	nextLevel: function() {
+		this.level++;
+		this.numEnemies = this.level *  2 + 10;
+		this.zombiesPool._group.callAll('increaseHealth');
+		this.runnersPool._group.callAll('increaseHealth');
+		this.game.time.events.add(Phaser.Timer.SECOND * 3, this.beginSpawning, this);
+	},
+
+	// LLAMA A CREAR ZOMBI CADA X SEGUNDOS
+	beginSpawning: function() {
+		this.noMercy.play();
+		this.game.time.events.repeat(Phaser.Timer.SECOND, this.numEnemies, this.spawnEnemy, this);
+	},
+
+	// CREA ZOMBI EN SPAWN ALEATORIO
+	spawnEnemy: function() {
+		this.spawnPoint = this.spawnPoints[Math.floor(Math.random() * this.spawnPoints.length)];
+		if(Math.random() < this.level / 20) {
+			this.runnersPool.spawn(this.spawnPoint.x, this.spawnPoint.y);
+		} else {
+			this.zombiesPool.spawn(this.spawnPoint.x, this.spawnPoint.y);
+		}
+	},
+
+	bulletHitEnemy: function(enemy, bullet) {
+		enemy.modifyHealth(-bullet.damage);
+		if (enemy._currentHealth == 0) {
+			PlayScene.enemiesKilled++;
+			PlayScene.score += enemy._score;
+
+			PlayScene.spawnBlood(enemy);
+			if (enemy.key == 'runner') { PlayScene.spawnReward(enemy); }
+		}
+		bullet.kill();
+	},
+
+	bulletHitWall: function(enemy, bullet) {
+		bullet.kill();
+	},
+
+	recalculateDir: function(enemy) {
+		if (enemy.angle == 90 || enemy.angle == -90) {
+			if (PlayScene.player.position.y > enemy.position.y) {
+				enemy.angle = 180;
+				enemy.body.velocity.y = enemy._speed;
+			} else {
+				enemy.angle = 0;
+				enemy.body.velocity.y = -enemy._speed;
+			}
+		}
+
+		if (enemy.angle == 0 || enemy.angle == -180) {
+			if (PlayScene.player.position.x > enemy.position.x) {
+				enemy.angle = 90;
+				enemy.body.velocity.x = enemy._speed;
+			} else {
+				enemy.angle = -90;
+				enemy.body.velocity.x = -enemy._speed;
+			}
+		}
+	},
+
+	bringAllToTop: function() {
+		this.player.bringToTop();
+		this.game.world.bringToTop(this.zombiesPool._group);
+		this.game.world.bringToTop(this.runnersPool._group);
+		for(var i = 0; i < this.walls.length; i++) {
+			this.walls[i].bringToTop();
+		}
+	},
+
+	spawnBlood: function(enemy) {
+		var blood = this.game.add.sprite(enemy.position.x, enemy.position.y, 'blood');
+		blood.scale.setTo(0.1);
+		blood.anchor.setTo(0.5);
+		PlayScene.bringAllToTop();
+	},
+
+	spawnReward: function(enemy) {
+		var reward;
+		if(Math.random() < 0.5) {
+			reward = new Medikit(this.game, enemy.position, this.player);
+		} else {
+			reward = new AmmoCrate(this.game, enemy.position, this.player);
+		}
+		this.game.add.existing(reward);
+		PlayScene.bringAllToTop();
 	}
+
 };
-
-function nextLevel() {
-	PlayScene.level++;
-	PlayScene.numEnemies = PlayScene.level *  2 + 10;
-	PlayScene.zombiesPool._group.callAll('increaseHealth');
-	PlayScene.runnersPool._group.callAll('increaseHealth');
-	PlayScene.game.time.events.add(Phaser.Timer.SECOND * 3, beginSpawning, this);
-}
-
-// LLAMA A CREAR ZOMBI CADA X SEGUNDOS
-function beginSpawning() {
-	PlayScene.game.time.events.repeat(Phaser.Timer.SECOND, PlayScene.numEnemies, spawnEnemy, this);
-}
-
-// CREA ZOMBI EN SPAWN ALEATORIO
-function spawnEnemy() {
-	PlayScene.spawnPoint = PlayScene.spawnPoints[Math.floor(Math.random() * PlayScene.spawnPoints.length)];
-	if(Math.random() < PlayScene.level / 20) {
-		PlayScene.runnersPool.spawn(PlayScene.spawnPoint.x, PlayScene.spawnPoint.y);
-	} else {
-		PlayScene.zombiesPool.spawn(PlayScene.spawnPoint.x, PlayScene.spawnPoint.y);
-	}
-}
-
-function bulletHitEnemy(enemy, bullet) {
-	enemy.modifyHealth(-bullet.damage);
-	if (enemy._currentHealth == 0) {
-		PlayScene.enemiesKilled++;
-		PlayScene.score += enemy._score;
-
-		spawnBlood(enemy);
-		if (enemy.key == 'runner') { spawnReward(enemy); }
-	}
-	bullet.kill();
-}
-
-function bulletHitWall(enemy, bullet) {
-	bullet.kill();
-}
-
-function recalculateDir(enemy) {
-	if (enemy.angle == 90 || enemy.angle == -90) {
-		if (PlayScene.player.position.y > enemy.position.y) {
-			enemy.angle = 180;
-			enemy.body.velocity.y = enemy._speed;
-		} else {
-			enemy.angle = 0;
-			enemy.body.velocity.y = -enemy._speed;
-		}
-	}
-
-	if (enemy.angle == 0 || enemy.angle == -180) {
-		if (PlayScene.player.position.x > enemy.position.x) {
-			enemy.angle = 90;
-			enemy.body.velocity.x = enemy._speed;
-		} else {
-			enemy.angle = -90;
-			enemy.body.velocity.x = -enemy._speed;
-		}
-	}
-}
-
-function bringAllToTop() {
-	PlayScene.player.bringToTop();
-	for(var i = 0; i < PlayScene.walls.length; i++) {
-		PlayScene.walls[i].bringToTop();
-	}
-	for(var i = 0; i < PlayScene.zombies.length; i++) {
-		PlayScene.zombies[i].bringToTop();
-	}
-	console.log(PlayScene.walls[0]);
-	console.log(PlayScene.zombies[0])
-}
-
-function spawnBlood(enemy) {
-	var blood = PlayScene.game.add.sprite(enemy.position.x, enemy.position.y, 'blood');
-	blood.scale.setTo(0.1);
-	blood.anchor.setTo(0.5);
-	bringAllToTop();
-}
-
-function spawnReward(enemy) {
-	var reward;
-	if(Math.random() < 0.5) {
-		reward = new Medikit(PlayScene.game, enemy.position, PlayScene.player);
-	} else {
-		reward = new AmmoCrate(PlayScene.game, enemy.position, PlayScene.player);
-	}
-	PlayScene.game.add.existing(reward);
-	bringAllToTop();
-}
 
 module.exports = PlayScene;
 
@@ -638,6 +813,10 @@ Player = function Player(game, position) {
 		new Weapon.shotgun(game)
 	];
 	this.currentWeapon = 0;
+	this.switchWeaponSound = game.add.audio('switchWeapon');
+	this.heartbeatSound = game.add.audio('heartbeat');
+	this.heartbeatSound.loop = true;
+	this.heartbeatSound.volume = 5;
 
 	this.scale.setTo(0.075);
 	this.frame = 0;
@@ -654,9 +833,12 @@ Player.prototype.constructor = Character;
 Player.prototype.update = function() {
 	this.move();
 	this.checkInput();
-	if (this._currentHealth == 0) {
-		this.game.state.states.play.music.stop();
-		this.game.state.start('menu', true, false);
+	
+	if (this._currentHealth <= 25 && !this.heartbeatSound.isPlaying) {
+		this.heartbeatSound.play();
+	}
+	if (this._currentHealth > 25 || this._currentHealth == 0) {
+		this.heartbeatSound.stop();
 	}
 }
 
@@ -703,16 +885,19 @@ Player.prototype.checkInput = function () {
 	}
 	if (this.keyboard.isDown(Phaser.Keyboard.ONE))
 	{
+		this.switchWeaponSound.play();
 		this.currentWeapon = 0;
 		this.loadTexture('playerPistol'), 0;
 	}
 	if (this.keyboard.isDown(Phaser.Keyboard.TWO))
 	{
+		this.switchWeaponSound.play();
 		this.currentWeapon = 1;
 		this.loadTexture('playerRifle'), 0;
 	}
 	if (this.keyboard.isDown(Phaser.Keyboard.THREE))
 	{
+		this.switchWeaponSound.play();
 		this.currentWeapon = 2;
 		this.loadTexture('playerShotgun'), 0;
 	}
@@ -832,7 +1017,7 @@ Weapon.shotgun = function (game) {
 	Phaser.Group.call(this, game, game.world, 'shotgunBullets', false, true, Phaser.Physics.ARCADE);
 
 	this.name = "Shotgun";
-	this.sound = game.add.audio('pistolShot');
+	this.sound = game.add.audio('shotgun');
 	this.nextFire = 0;
 	this.bulletSpeed = 1000;
 	this.fireRate = 1000;
