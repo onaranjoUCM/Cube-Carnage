@@ -77,6 +77,7 @@ var PlayScene = {
 
 			// Menu button
 			if(event.x > 480 && event.x < 680) {
+				PlayScene.player.heartbeatSound.stop();
 				PlayScene.game.state.states.play.music.stop();
 				PlayScene.game.state.start('menu', true, false);
 				PlayScene.game.paused = false;

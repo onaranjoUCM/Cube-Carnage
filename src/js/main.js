@@ -116,6 +116,7 @@ var MenuScene = {
 		this.game.add.button(520, 500, 'playButton', this.start, this, 2, 0, 1);
 
 		this.music = this.game.add.audio('menuMusic');
+		this.music.volume = 0.01;
 		this.music.loop = true;
 		this.music.play();
 	},
@@ -128,7 +129,7 @@ var MenuScene = {
 var NameMenu = {
 	create: function () {
 		this.playerName = '';
-		this.title = this.game.add.text(this.game.world.centerX, 250, 'Enter your name', {font: '40px Arial', fill: '#000000'});
+		this.title = this.game.add.text(this.game.world.centerX, 250, 'Write your name', {font: '40px Arial', fill: '#000000'});
 		this.pressEnter = this.game.add.text(this.game.world.centerX, 550, 'Press Enter to continue', {font: '20px Arial', fill: '#000000'});
 		this.textbox = this.game.add.text(330, 300, '', {font: '20px Arial', fill: '#000000'});
 		this.title.anchor.setTo(0.5);

@@ -12,9 +12,10 @@ Player = function Player(game, position) {
 	];
 	this.currentWeapon = 0;
 	this.switchWeaponSound = game.add.audio('switchWeapon');
+	this.switchWeaponSound.volume = 0.01;
 	this.heartbeatSound = game.add.audio('heartbeat');
 	this.heartbeatSound.loop = true;
-	this.heartbeatSound.volume = 5;
+	this.heartbeatSound.volume = 0.1;
 
 	this.scale.setTo(0.075);
 	this.frame = 0;
@@ -77,23 +78,23 @@ Player.prototype.move = function () {
 };
 
 Player.prototype.checkInput = function () {
-	if (this.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
+	if (this.keyboard.isDown(Phaser.Keyboard.SPACEBAR) || this.keyboard.isDown(Phaser.Keyboard.NUMPAD_0))
 	{
 		this.weapons[this.currentWeapon].fire(this);
 	}
-	if (this.keyboard.isDown(Phaser.Keyboard.ONE))
+	if (this.keyboard.isDown(Phaser.Keyboard.ONE) || this.keyboard.isDown(Phaser.Keyboard.NUMPAD_1))
 	{
 		this.switchWeaponSound.play();
 		this.currentWeapon = 0;
 		this.loadTexture('playerPistol'), 0;
 	}
-	if (this.keyboard.isDown(Phaser.Keyboard.TWO))
+	if (this.keyboard.isDown(Phaser.Keyboard.TWO) || this.keyboard.isDown(Phaser.Keyboard.NUMPAD_2))
 	{
 		this.switchWeaponSound.play();
 		this.currentWeapon = 1;
 		this.loadTexture('playerRifle'), 0;
 	}
-	if (this.keyboard.isDown(Phaser.Keyboard.THREE))
+	if (this.keyboard.isDown(Phaser.Keyboard.THREE) || this.keyboard.isDown(Phaser.Keyboard.NUMPAD_3))
 	{
 		this.switchWeaponSound.play();
 		this.currentWeapon = 2;

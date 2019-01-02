@@ -8,6 +8,7 @@ Enemy = function Enemy(game, player, graphic, position, speed, health, score) {
 	this._lastAttackTime = Date.now();
 	this._lastMove = Date.now();
 	this.sound = this.game.add.audio('zombieAttack');
+	this.sound.volume = 0.01;
 
 	this.game.physics.arcade.enable(this, Phaser.Physics.ARCADE);
 	this.body.collideWorldBounds = true;
@@ -69,7 +70,6 @@ Enemy.prototype.attack = function () {
 	this.animations.play('attack', this._attackAnimationSpeed, false);
 	this._lastAttackTime = Date.now();
 	this.player.modifyHealth(-this.damage);
-	this.sound.volume = 2;
 	this.sound.play();
 	this.nextAttack = this.game.time.time + this._attackSpeed;
 };
