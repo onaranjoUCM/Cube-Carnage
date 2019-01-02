@@ -22,6 +22,7 @@ window.onload = function () {
 	game.state.add('play', PlayScene);
 	game.state.add('scoreboard', Scoreboard);
 	game.state.add('nameMenu', NameMenu);
+	game.state.add('controls', Controls);
 
 	game.state.start('boot');
 };
@@ -45,7 +46,6 @@ var BootScene = {
 
 var PreloaderScene = {
 	preload: function () {
-		var music;
 		this.loadingBar = this.game.add.sprite(0, 240, 'preloader_bar');
 		this.loadingBar.anchor.setTo(0, 0.5);
 		this.load.setPreloadSprite(this.loadingBar);
@@ -62,7 +62,6 @@ var PreloaderScene = {
 
 var MenuScene = {
 	preload: function () {
-		var music;
 		// Button sprites
 		this.game.load.spritesheet('playButton', 'images/menus/playButton.png', 260, 80);
 		this.game.load.spritesheet('backButton', 'images/menus/backButton.png', 161, 60);
@@ -93,6 +92,7 @@ var MenuScene = {
 		this.game.load.image('ammocrate', 'images/objects/ammocrate.png');
 
 		// Music
+		var music;
 		this.game.load.audio('gameMusic', 'audio/Humble_Match.ogg');
 
 		// Audio effects
@@ -113,16 +113,43 @@ var MenuScene = {
 
 		this.game.add.sprite(-40,500, 'logo');
 
-		this.game.add.button(520, 500, 'playButton', this.start, this, 2, 0, 1);
+		this.game.add.button(530, 440, 'playButton', this.start, this, 2, 0, 1);
+		this.game.add.button(630, 530, 'backButton', this.controls, this, 2, 0, 1);
 
 		this.music = this.game.add.audio('menuMusic');
 		this.music.volume = 0.01;
 		this.music.loop = true;
+
 		this.music.play();
 	},
-
+	
 	start: function() {
+		if (!this.music.isPlaying) {
+			this.music.play();
+		}
 		this.game.state.start('nameMenu', true, false, 0);
+	},
+	
+	controls: function() {
+		this.music.stop();
+		this.game.state.start('controls', true, false, 0);
+	}
+};
+
+var Controls = {
+	create: function () {
+		var title = this.game.add.text(this.game.world.centerX, 100, 'Controls', {font: '60px Arial', fill: '#000000'});
+		this.game.add.text(this.game.world.centerX - 200, 200, 'Move: WASD or ARROW KEYS', {font: '30px Arial', fill: '#000000'});
+		this.game.add.text(this.game.world.centerX - 200, 250, 'Shoot: SPACEBAR or NUMPAD 0', {font: '30px Arial', fill: '#000000'});
+		this.game.add.text(this.game.world.centerX - 200, 300, 'Switch weapon: 1, 2 and 3', {font: '30px Arial', fill: '#000000'});
+		this.game.add.text(this.game.world.centerX - 200, 350, 'Pause: Escape', {font: '30px Arial', fill: '#000000'});
+		var returnButton = this.game.add.button(this.game.world.centerX, 500, 'backButton', this.goToMenu, this, 2, 0, 1);
+		title.anchor.setTo(0.5);
+		returnButton.anchor.setTo(0.5);
+	},
+
+	goToMenu: function() {
+		this.game.state.start('menu', true, false);
 	}
 };
 
@@ -134,7 +161,7 @@ var NameMenu = {
 		this.textbox = this.game.add.text(330, 300, '', {font: '20px Arial', fill: '#000000'});
 		this.title.anchor.setTo(0.5);
 		this.pressEnter.anchor.setTo(0.5);
-		
+
 		this.game.input.keyboard.addCallbacks(this, null, null, this.keyPress);
 	},
 
@@ -147,13 +174,13 @@ var NameMenu = {
 			}
 			this.game.state.start('mapsMenu', true, false);
 		}
-		
+
 		if (NameMenu.playerName.length <= 12) {
 			NameMenu.playerName += char;
 			NameMenu.textbox.text = NameMenu.playerName;
 		}
 	},
-	
+
 	update: function() {
 		if (this.game.input.keyboard.isDown(Phaser.Keyboard.BACKSPACE) && this.game.state.current == "nameMenu"){
 			console.log("aids");
