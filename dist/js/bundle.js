@@ -57,6 +57,7 @@ Enemy = function Enemy(game, player, graphic, position, speed, health, score) {
 	this._lastAttackTime = Date.now();
 	this._lastMove = Date.now();
 	this.sound = this.game.add.audio('zombieAttack');
+	this.sound.volume = 0.01;
 
 	this.game.physics.arcade.enable(this, Phaser.Physics.ARCADE);
 	this.body.collideWorldBounds = true;
@@ -118,7 +119,6 @@ Enemy.prototype.attack = function () {
 	this.animations.play('attack', this._attackAnimationSpeed, false);
 	this._lastAttackTime = Date.now();
 	this.player.modifyHealth(-this.damage);
-	this.sound.volume = 2;
 	this.sound.play();
 	this.nextAttack = this.game.time.time + this._attackSpeed;
 };
@@ -270,6 +270,7 @@ var MenuScene = {
 		this.game.add.button(520, 500, 'playButton', this.start, this, 2, 0, 1);
 
 		this.music = this.game.add.audio('menuMusic');
+		this.music.volume = 0.01;
 		this.music.loop = true;
 		this.music.play();
 	},
@@ -282,7 +283,7 @@ var MenuScene = {
 var NameMenu = {
 	create: function () {
 		this.playerName = '';
-		this.title = this.game.add.text(this.game.world.centerX, 250, 'Enter your name', {font: '40px Arial', fill: '#000000'});
+		this.title = this.game.add.text(this.game.world.centerX, 250, 'Write your name', {font: '40px Arial', fill: '#000000'});
 		this.pressEnter = this.game.add.text(this.game.world.centerX, 550, 'Press Enter to continue', {font: '20px Arial', fill: '#000000'});
 		this.textbox = this.game.add.text(330, 300, '', {font: '20px Arial', fill: '#000000'});
 		this.title.anchor.setTo(0.5);
@@ -300,10 +301,16 @@ var NameMenu = {
 			}
 			this.game.state.start('mapsMenu', true, false);
 		}
-
+		
 		if (NameMenu.playerName.length <= 12) {
 			NameMenu.playerName += char;
 			NameMenu.textbox.text = NameMenu.playerName;
+		}
+	},
+	
+	update: function() {
+		if (this.game.input.keyboard.isDown(Phaser.Keyboard.BACKSPACE) && this.game.state.current == "nameMenu"){
+			console.log("aids");
 		}
 	}
 };
@@ -528,6 +535,7 @@ Medikit = function Medikit(game, position, player) {
 	
 	this.player = player;
 	this.sound = game.add.audio('heal');
+	this.sound.volume = 0.01;
 }
 
 Medikit.prototype = Object.create(MapObject.prototype);
@@ -549,6 +557,7 @@ AmmoCrate = function AmmoCrate(game, position, player) {
 	
 	this.player = player;
 	this.sound = game.add.audio('switchWeapon');
+	this.sound.volume = 0.01;
 }
 
 AmmoCrate.prototype = Object.create(MapObject.prototype);
@@ -643,6 +652,7 @@ var PlayScene = {
 
 			// Menu button
 			if(event.x > 480 && event.x < 680) {
+				PlayScene.player.heartbeatSound.stop();
 				PlayScene.game.state.states.play.music.stop();
 				PlayScene.game.state.start('menu', true, false);
 				PlayScene.game.paused = false;
@@ -816,9 +826,10 @@ Player = function Player(game, position) {
 	];
 	this.currentWeapon = 0;
 	this.switchWeaponSound = game.add.audio('switchWeapon');
+	this.switchWeaponSound.volume = 0.01;
 	this.heartbeatSound = game.add.audio('heartbeat');
 	this.heartbeatSound.loop = true;
-	this.heartbeatSound.volume = 5;
+	this.heartbeatSound.volume = 0.1;
 
 	this.scale.setTo(0.075);
 	this.frame = 0;
@@ -881,23 +892,23 @@ Player.prototype.move = function () {
 };
 
 Player.prototype.checkInput = function () {
-	if (this.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
+	if (this.keyboard.isDown(Phaser.Keyboard.SPACEBAR) || this.keyboard.isDown(Phaser.Keyboard.NUMPAD_0))
 	{
 		this.weapons[this.currentWeapon].fire(this);
 	}
-	if (this.keyboard.isDown(Phaser.Keyboard.ONE))
+	if (this.keyboard.isDown(Phaser.Keyboard.ONE) || this.keyboard.isDown(Phaser.Keyboard.NUMPAD_1))
 	{
 		this.switchWeaponSound.play();
 		this.currentWeapon = 0;
 		this.loadTexture('playerPistol'), 0;
 	}
-	if (this.keyboard.isDown(Phaser.Keyboard.TWO))
+	if (this.keyboard.isDown(Phaser.Keyboard.TWO) || this.keyboard.isDown(Phaser.Keyboard.NUMPAD_2))
 	{
 		this.switchWeaponSound.play();
 		this.currentWeapon = 1;
 		this.loadTexture('playerRifle'), 0;
 	}
-	if (this.keyboard.isDown(Phaser.Keyboard.THREE))
+	if (this.keyboard.isDown(Phaser.Keyboard.THREE) || this.keyboard.isDown(Phaser.Keyboard.NUMPAD_3))
 	{
 		this.switchWeaponSound.play();
 		this.currentWeapon = 2;
@@ -936,6 +947,7 @@ Weapon.pistol = function (game) {
 
 	this.name = "Pistol";
 	this.sound = game.add.audio('pistolShot');
+	this.sound.volume = 0.005;
 	this.nextFire = 0;
 	this.bulletSpeed = 600;
 	this.fireRate = 500;
@@ -978,6 +990,7 @@ Weapon.rifle = function (game) {
 
 	this.name = "Rifle";
 	this.sound = game.add.audio('pistolShot');
+	this.sound.volume = 0.005;
 	this.nextFire = 0;
 	this.bulletSpeed = 1000;
 	this.fireRate = 100;
@@ -1020,6 +1033,7 @@ Weapon.shotgun = function (game) {
 
 	this.name = "Shotgun";
 	this.sound = game.add.audio('shotgun');
+	this.sound.volume = 0.005;
 	this.nextFire = 0;
 	this.bulletSpeed = 1000;
 	this.fireRate = 1000;

@@ -147,10 +147,16 @@ var NameMenu = {
 			}
 			this.game.state.start('mapsMenu', true, false);
 		}
-
+		
 		if (NameMenu.playerName.length <= 12) {
 			NameMenu.playerName += char;
 			NameMenu.textbox.text = NameMenu.playerName;
+		}
+	},
+	
+	update: function() {
+		if (this.game.input.keyboard.isDown(Phaser.Keyboard.BACKSPACE) && this.game.state.current == "nameMenu"){
+			console.log("aids");
 		}
 	}
 };
