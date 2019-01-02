@@ -292,7 +292,7 @@ var NameMenu = {
 	},
 
 	keyPress: function(char) {
-		if (this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
+		if (this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER) && this.game.state.current == "nameMenu"){
 			if (NameMenu.playerName == '') {
 				localStorage.setItem('playerName', 'John Cubick');
 			} else {
@@ -576,7 +576,9 @@ var PlayScene = {
 	create: function () {
 		// AUDIO
 		this.noMercy = this.game.add.audio('noMercy');
+		this.noMercy.volume = 0.01;
 		this.music = this.game.add.audio('gameMusic');
+		this.music.volume = 0.01;
 		this.music.stop();
 		this.music.loop = true;
 		this.music.play();
