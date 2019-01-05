@@ -120,20 +120,20 @@ var MenuScene = {
 		this.music = this.game.add.audio('menuMusic');
 		this.music.volume = 0.01;
 		this.music.loop = true;
-
-		this.music.play();
+		this.music.onDecoded.add(this.playMusic, this);
 	},
 	
 	start: function() {
-		if (!this.music.isPlaying) {
-			this.music.play();
-		}
 		this.game.state.start('nameMenu', true, false, 0);
 	},
 	
 	controls: function() {
 		this.music.stop();
 		this.game.state.start('controls', true, false, 0);
+	},
+	
+	playMusic: function() {
+		this.music.play();
 	}
 };
 
