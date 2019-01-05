@@ -4,7 +4,7 @@ window.onload = function () {
 	var PlayScene = require('./play_scene.js');
 	var config = {
 		width: 800,
-		height: 600,
+		height: 680,
 		renderer: Phaser.AUTO,
 		backgroundColor: '#ffffff',
 		parent: 'game',
@@ -108,13 +108,13 @@ var MenuScene = {
 
 	create: function () {
 		var title = this.game.add.sprite(this.game.world.width / 2, this.game.world.height / 2, 'title');
-		title.scale.setTo(0.55,1.31);
+		title.scale.setTo(0.55,1.55);
 		title.anchor.setTo(0.5,0.5);
 
-		this.game.add.sprite(-40,500, 'logo');
+		this.game.add.sprite(-40,570, 'logo');
 
-		this.game.add.button(530, 440, 'playButton', this.start, this, 2, 0, 1);
-		this.game.add.button(630, 530, 'backButton', this.controls, this, 2, 0, 1);
+		this.game.add.button(530, 520, 'playButton', this.start, this, 2, 0, 1);
+		this.game.add.button(630, 610, 'backButton', this.controls, this, 2, 0, 1);
 
 		this.music = this.game.add.audio('menuMusic');
 		this.music.volume = 0.01;
@@ -139,11 +139,11 @@ var MenuScene = {
 var Controls = {
 	create: function () {
 		var title = this.game.add.text(this.game.world.centerX, 100, 'Controls', {font: '60px Arial', fill: '#000000'});
-		this.game.add.text(this.game.world.centerX - 200, 200, 'Move: WASD or ARROW KEYS', {font: '30px Arial', fill: '#000000'});
-		this.game.add.text(this.game.world.centerX - 200, 250, 'Shoot: SPACEBAR or NUMPAD 0', {font: '30px Arial', fill: '#000000'});
-		this.game.add.text(this.game.world.centerX - 200, 300, 'Switch weapon: 1, 2 and 3', {font: '30px Arial', fill: '#000000'});
-		this.game.add.text(this.game.world.centerX - 200, 350, 'Pause: Escape', {font: '30px Arial', fill: '#000000'});
-		var returnButton = this.game.add.button(this.game.world.centerX, 500, 'backButton', this.goToMenu, this, 2, 0, 1);
+		this.game.add.text(this.game.world.centerX - 200, 250, 'Move: WASD or ARROW KEYS', {font: '30px Arial', fill: '#000000'});
+		this.game.add.text(this.game.world.centerX - 200, 300, 'Shoot: SPACEBAR or NUMPAD 0', {font: '30px Arial', fill: '#000000'});
+		this.game.add.text(this.game.world.centerX - 200, 350, 'Switch weapon: 1, 2 and 3', {font: '30px Arial', fill: '#000000'});
+		this.game.add.text(this.game.world.centerX - 200, 400, 'Pause: Escape', {font: '30px Arial', fill: '#000000'});
+		var returnButton = this.game.add.button(this.game.world.centerX, 600, 'backButton', this.goToMenu, this, 2, 0, 1);
 		title.anchor.setTo(0.5);
 		returnButton.anchor.setTo(0.5);
 	},
@@ -156,7 +156,7 @@ var Controls = {
 var NameMenu = {
 	create: function () {
 		this.playerName = '';
-		this.title = this.game.add.text(this.game.world.centerX, 250, 'Write your name', {font: '40px Arial', fill: '#000000'});
+		this.title = this.game.add.text(this.game.world.centerX, 200, 'Write your name', {font: '40px Arial', fill: '#000000'});
 		this.pressEnter = this.game.add.text(this.game.world.centerX, 550, 'Press Enter to continue', {font: '20px Arial', fill: '#000000'});
 		this.textbox = this.game.add.text(330, 300, '', {font: '20px Arial', fill: '#000000'});
 		this.title.anchor.setTo(0.5);
@@ -191,7 +191,7 @@ var NameMenu = {
 var MapsMenu = {
 	create: function () {
 		this.title = this.game.add.text(this.game.world.centerX, 100, 'Choose a map', {font: '60px Arial', fill: '#000000'});
-		this.name = this.game.add.text(this.game.world.centerX, 550, 'Name: ' + localStorage.getItem('playerName'), {font: '30px Arial', fill: '#000000'});
+		this.name = this.game.add.text(this.game.world.centerX, 600, 'Name: ' + localStorage.getItem('playerName'), {font: '30px Arial', fill: '#000000'});
 		this.title.anchor.setTo(0.5);
 		this.name.anchor.setTo(0.5);
 

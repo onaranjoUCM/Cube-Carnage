@@ -38,7 +38,7 @@ var PlayScene = {
 		}
 
 		// PLAYER
-		this.player = new Player(this.game, {x: this.game.world.width / 2, y: this.game.world.height / 2});
+		this.player = new Player(this.game, {x: this.game.world.width / 2, y: this.game.world.height / 2 + 40});
 		this.game.add.existing(this.player);
 
 		// ZOMBIES
@@ -125,22 +125,21 @@ var PlayScene = {
 
 	// INTERFAZ
 	render: function () {
+		// BACKGROUND
+		this.game.debug.geom(new Phaser.Rectangle(0, 0, 800, 80), 'rgba(0, 0, 153)');
+		this.game.debug.geom(new Phaser.Rectangle(10, 10, 780, 60), 'rgba(77, 77, 255)');
+		
 		// HEALTHBAR
-		var healthBG = new Phaser.Rectangle(20, 20, 320, 50);
-		this.game.debug.geom(healthBG, 'rgba(0, 0, 0, 0.2)') ;
-		var health = new Phaser.Rectangle(30,30,this.player._currentHealth*3,30);
-		this.game.debug.geom( health, 'rgba(255, 0, 0, 0.8)' ) ;
-		this.game.debug.text( "HEALTH: " + this.player._currentHealth, 40, 50, 'rgba(0, 0, 0, 1)' );
+		this.game.debug.geom(new Phaser.Rectangle(20, 20, this.player._currentHealth * 3, 40), 'rgba(255, 0, 0, 0.8)');
+		this.game.debug.text("HEALTH: " + this.player._currentHealth, 30, 45, 'rgba(0, 0, 0, 1)', '20px Courier');
 
 		// WEAPON AND AMMO
-		var weaponBG = new Phaser.Rectangle(20, this.game.world.height-60, 160, 40);
-		this.game.debug.geom(weaponBG, 'rgba(255, 215, 0, 0.5)') ;
-		this.game.debug.text( "WEAPON: " + this.player.weapons[this.player.currentWeapon].name, 25, this.game.world.height - 43, 'rgba(0,0,0,1)' );
-		this.game.debug.text( "AMMO: " + this.player.weapons[this.player.currentWeapon].ammo, 25, this.game.world.height - 25, 'rgba(0,0,0,1)' );
+		this.game.debug.text( "WEAPON: " + this.player.weapons[this.player.currentWeapon].name, 600, 35, 'rgba(0,0,0)', '20px Courier' );
+		this.game.debug.text( "AMMO: " + this.player.weapons[this.player.currentWeapon].ammo, 600, 55, 'rgba(0,0,0)', '20px Courier' );
 
 		// LEVEL AND SCORE
-		this.game.debug.text( "LEVEL: " + this.level, this.game.world.width - 220, 15, 'rgba(255, 255, 255, 1)' );
-		this.game.debug.text( "SCORE: " + this.score, this.game.world.width - 120, 15, 'rgba(255, 255, 255, 1)' );
+		this.game.debug.text( "LEVEL: " + this.level, 350, 35, 'rgba(255, 255, 255)', '20px Courier' );
+		this.game.debug.text( "SCORE: " + this.score, 350, 55, 'rgba(255, 255, 255)', '20px Courier' );
 	},
 
 	nextLevel: function() {
