@@ -92,10 +92,6 @@ var MenuScene = {
 		this.game.load.image('medikit', 'images/objects/medikit.png');
 		this.game.load.image('ammocrate', 'images/objects/ammocrate.png');
 
-		// Music
-		var music;
-		this.game.load.audio('gameMusic', 'audio/Humble_Match.ogg');
-
 		// Audio effects
 		this.game.load.audio('pistolShot', 'audio/pistolShot.mp3');
 		this.game.load.audio('zombieAttack', 'audio/zombieAttack.mp3');
@@ -116,24 +112,14 @@ var MenuScene = {
 
 		this.game.add.button(530, 520, 'playButton', this.start, this, 2, 0, 1);
 		this.game.add.button(610, 610, 'controlsButton', this.controls, this, 2, 0, 1);
-
-		this.music = this.game.add.audio('menuMusic');
-		this.music.volume = 0.01;
-		this.music.loop = true;
-		this.music.onDecoded.add(this.playMusic, this);
 	},
-	
+
 	start: function() {
 		this.game.state.start('nameMenu', true, false, 0);
 	},
-	
+
 	controls: function() {
-		this.music.stop();
 		this.game.state.start('controls', true, false, 0);
-	},
-	
-	playMusic: function() {
-		this.music.play();
 	}
 };
 
@@ -166,6 +152,10 @@ var NameMenu = {
 		this.pressEnter.anchor.setTo(0.5);
 
 		this.game.input.keyboard.addCallbacks(this, null, null, this.keyPress);
+		this.music = this.game.add.audio('menuMusic');
+		this.music.volume = 0.01;
+		this.music.loop = true;
+		this.music.play();
 	},
 
 	keyPress: function(char) {
@@ -190,10 +180,6 @@ var NameMenu = {
 			NameMenu.playerName = '';
 			NameMenu.textbox.text = NameMenu.playerName;
 		}
-	},
-	
-	render: function() {
-		//this.game.debug.geom(new Phaser.Rectangle(300, 320, 200, 1), 'rgba(0, 0, 0)');
 	}
 };
 
