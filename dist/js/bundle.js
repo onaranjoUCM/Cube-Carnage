@@ -158,7 +158,7 @@ window.onload = function () {
 	var PlayScene = require('./play_scene.js');
 	var config = {
 		width: 800,
-		height: 600,
+		height: 680,
 		renderer: Phaser.AUTO,
 		backgroundColor: '#ffffff',
 		parent: 'game',
@@ -219,6 +219,7 @@ var MenuScene = {
 		// Button sprites
 		this.game.load.spritesheet('playButton', 'images/menus/playButton.png', 260, 80);
 		this.game.load.spritesheet('backButton', 'images/menus/backButton.png', 161, 60);
+		this.game.load.spritesheet('controlsButton', 'images/menus/controlsButton.png', 181, 60);
 		this.game.load.spritesheet('map1button', 'images/menus/map1button.png', 208, 58);
 		this.game.load.spritesheet('map2button', 'images/menus/map2button.png', 208, 58);
 		this.game.load.spritesheet('map3button', 'images/menus/map3button.png', 208, 58);
@@ -262,13 +263,13 @@ var MenuScene = {
 
 	create: function () {
 		var title = this.game.add.sprite(this.game.world.width / 2, this.game.world.height / 2, 'title');
-		title.scale.setTo(0.55,1.31);
+		title.scale.setTo(0.55,1.55);
 		title.anchor.setTo(0.5,0.5);
 
-		this.game.add.sprite(-40,500, 'logo');
+		this.game.add.sprite(-40,570, 'logo');
 
-		this.game.add.button(530, 440, 'playButton', this.start, this, 2, 0, 1);
-		this.game.add.button(630, 530, 'backButton', this.controls, this, 2, 0, 1);
+		this.game.add.button(530, 520, 'playButton', this.start, this, 2, 0, 1);
+		this.game.add.button(610, 610, 'controlsButton', this.controls, this, 2, 0, 1);
 
 		this.music = this.game.add.audio('menuMusic');
 		this.music.volume = 0.01;
@@ -293,11 +294,11 @@ var MenuScene = {
 var Controls = {
 	create: function () {
 		var title = this.game.add.text(this.game.world.centerX, 100, 'Controls', {font: '60px Arial', fill: '#000000'});
-		this.game.add.text(this.game.world.centerX - 200, 200, 'Move: WASD or ARROW KEYS', {font: '30px Arial', fill: '#000000'});
-		this.game.add.text(this.game.world.centerX - 200, 250, 'Shoot: SPACEBAR or NUMPAD 0', {font: '30px Arial', fill: '#000000'});
-		this.game.add.text(this.game.world.centerX - 200, 300, 'Switch weapon: 1, 2 and 3', {font: '30px Arial', fill: '#000000'});
-		this.game.add.text(this.game.world.centerX - 200, 350, 'Pause: Escape', {font: '30px Arial', fill: '#000000'});
-		var returnButton = this.game.add.button(this.game.world.centerX, 500, 'backButton', this.goToMenu, this, 2, 0, 1);
+		this.game.add.text(this.game.world.centerX - 200, 250, 'Move: WASD or ARROW KEYS', {font: '30px Arial', fill: '#000000'});
+		this.game.add.text(this.game.world.centerX - 200, 300, 'Shoot: SPACEBAR or NUMPAD 0', {font: '30px Arial', fill: '#000000'});
+		this.game.add.text(this.game.world.centerX - 200, 350, 'Switch weapon: 1, 2 and 3', {font: '30px Arial', fill: '#000000'});
+		this.game.add.text(this.game.world.centerX - 200, 400, 'Pause: Escape', {font: '30px Arial', fill: '#000000'});
+		var returnButton = this.game.add.button(this.game.world.centerX, 600, 'backButton', this.goToMenu, this, 2, 0, 1);
 		title.anchor.setTo(0.5);
 		returnButton.anchor.setTo(0.5);
 	},
@@ -310,10 +311,12 @@ var Controls = {
 var NameMenu = {
 	create: function () {
 		this.playerName = '';
-		this.title = this.game.add.text(this.game.world.centerX, 250, 'Write your name', {font: '40px Arial', fill: '#000000'});
-		this.pressEnter = this.game.add.text(this.game.world.centerX, 550, 'Press Enter to continue', {font: '20px Arial', fill: '#000000'});
-		this.textbox = this.game.add.text(330, 300, '', {font: '20px Arial', fill: '#000000'});
+		this.title = this.game.add.text(this.game.world.centerX, 200, 'Write your name', {font: '40px Arial', fill: '#000000'});
+		this.pressBackspace = this.game.add.text(this.game.world.centerX, 500, 'Press Backspace to reset', {font: '20px Arial', fill: '#000000'});
+		this.pressEnter = this.game.add.text(this.game.world.centerX, 530, 'Press Enter to continue', {font: '20px Arial', fill: '#000000'});
+		this.textbox = this.game.add.text(350, 300, 'John Cubick', {font: '20px Arial', fill: '#999999'});
 		this.title.anchor.setTo(0.5);
+		this.pressBackspace.anchor.setTo(0.5);
 		this.pressEnter.anchor.setTo(0.5);
 
 		this.game.input.keyboard.addCallbacks(this, null, null, this.keyPress);
@@ -330,22 +333,28 @@ var NameMenu = {
 		}
 
 		if (NameMenu.playerName.length <= 12) {
+			NameMenu.textbox.fill = '#000000';
 			NameMenu.playerName += char;
 			NameMenu.textbox.text = NameMenu.playerName;
 		}
 	},
 
 	update: function() {
-		if (this.game.input.keyboard.isDown(Phaser.Keyboard.BACKSPACE) && this.game.state.current == "nameMenu"){
-			console.log("aids");
+		if (this.game.input.keyboard.isDown(Phaser.Keyboard.BACKSPACE) && this.game.state.current == "nameMenu") {
+			NameMenu.playerName = '';
+			NameMenu.textbox.text = NameMenu.playerName;
 		}
+	},
+	
+	render: function() {
+		//this.game.debug.geom(new Phaser.Rectangle(300, 320, 200, 1), 'rgba(0, 0, 0)');
 	}
 };
 
 var MapsMenu = {
 	create: function () {
 		this.title = this.game.add.text(this.game.world.centerX, 100, 'Choose a map', {font: '60px Arial', fill: '#000000'});
-		this.name = this.game.add.text(this.game.world.centerX, 550, 'Name: ' + localStorage.getItem('playerName'), {font: '30px Arial', fill: '#000000'});
+		this.name = this.game.add.text(this.game.world.centerX, 600, 'Name: ' + localStorage.getItem('playerName'), {font: '30px Arial', fill: '#000000'});
 		this.title.anchor.setTo(0.5);
 		this.name.anchor.setTo(0.5);
 
@@ -419,66 +428,66 @@ var Scoreboard = {
 Maps = function(game) { 
 	this.map1 = function (game) {
 		this.spawnPoints = [
-			{x: game.world.width / 2, y: 0, angle: 180},
-			{x: game.world.width / 2, y: game.world.height - 0, angle: 0},
-			{x: 0, y: game.world.height / 2, angle: 90},
-			{x: game.world.width - 0, y: game.world.height / 2, angle: 270},
+			{x: game.world.width / 2, y: 80, angle: 180},
+			{x: game.world.width / 2, y: game.world.height, angle: 0},
+			{x: 0, y: game.world.height / 2 + 40, angle: 90},
+			{x: game.world.width - 0, y: game.world.height / 2 + 40, angle: 270},
 		];
 
 		this.walls = [];
-		this.walls.push(new MapObject(game, 'wall', {x: 180, y: 10}, 360, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: 620, y: 10}, 360, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: 180, y: 590}, 360, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: 620, y: 590}, 360, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: 10, y: 130}, 20, 260));
-		this.walls.push(new MapObject(game, 'wall', {x: 10, y: 470}, 20, 260));
-		this.walls.push(new MapObject(game, 'wall', {x: 790, y: 130}, 20, 260));
-		this.walls.push(new MapObject(game, 'wall', {x: 790, y: 470}, 20, 260));
+		this.walls.push(new MapObject(game, 'wall', {x: 180, y: 90}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 620, y: 90}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 180, y: 670}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 620, y: 670}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 10, y: 210}, 20, 260));
+		this.walls.push(new MapObject(game, 'wall', {x: 10, y: 550}, 20, 260));
+		this.walls.push(new MapObject(game, 'wall', {x: 790, y: 210}, 20, 260));
+		this.walls.push(new MapObject(game, 'wall', {x: 790, y: 550}, 20, 260));
 
-		this.walls.push(new MapObject(game, 'wall', {x: 400, y: 150}, 400, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: 400, y: 450}, 400, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: 130, y: 300}, 20, 160));
-		this.walls.push(new MapObject(game, 'wall', {x: 650, y: 300}, 20, 160));
+		this.walls.push(new MapObject(game, 'wall', {x: 400, y: 230}, 400, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 400, y: 530}, 400, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 130, y: 380}, 20, 160));
+		this.walls.push(new MapObject(game, 'wall', {x: 650, y: 380}, 20, 160));
 
 		return this;
 	};
 
 	this.map2 = function (game) {
 		this.spawnPoints = [
-			{x: 20, y: 50, angle: 90},
-			{x: game.world.width - 20, y: 50, angle: -90},
+			{x: 20, y: 130, angle: 90},
+			{x: game.world.width - 20, y: 130, angle: -90},
 			{x: 20, y: game.world.height - 50, angle: 90},
 			{x: game.world.width - 20, y: game.world.height - 50, angle: -90}
 		];
 
 		this.walls = [];
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width / 2, y: 10}, game.world.width, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width / 2, y: 90}, game.world.width, 20));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width / 2, y: game.world.height - 10}, game.world.width, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: 10, y: game.world.height / 2}, 20, game.world.height - 160));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 10, y: game.world.height / 2}, 20, game.world.height - 160));
+		this.walls.push(new MapObject(game, 'wall', {x: 10, y: game.world.height / 2 + 40}, 20, game.world.height - 240));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 10, y: game.world.height / 2 + 40}, 20, game.world.height - 240));
 
-		this.walls.push(new MapObject(game, 'wall', {x: 230, y: 90}, 260, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 230, y: 170}, 260, 20));
 		this.walls.push(new MapObject(game, 'wall', {x: 230, y: game.world.height - 90}, 260, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: 90}, 260, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: 170}, 260, 20));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: game.world.height - 90}, 260, 20));
 
-		this.walls.push(new MapObject(game, 'wall', {x: 230, y: 260}, 260, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 230, y: 340}, 260, 20));
 		this.walls.push(new MapObject(game, 'wall', {x: 230, y: game.world.height - 260}, 260, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: 260}, 260, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: 340}, 260, 20));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: game.world.height - 260}, 260, 20));
 
-		this.walls.push(new MapObject(game, 'wall', {x: 110, y: 175}, 20, 80));
+		this.walls.push(new MapObject(game, 'wall', {x: 110, y: 255}, 20, 80));
 		this.walls.push(new MapObject(game, 'wall', {x: 110, y: game.world.height - 175}, 20, 80));
-		this.walls.push(new MapObject(game, 'wall', {x: 350, y: 175}, 20, 80));
+		this.walls.push(new MapObject(game, 'wall', {x: 350, y: 255}, 20, 80));
 		this.walls.push(new MapObject(game, 'wall', {x: 350, y: game.world.height - 175}, 20, 80));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: 175}, 20, 80));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: 255}, 20, 80));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: game.world.height - 175}, 20, 80));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 110, y: 175}, 20, 80));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 110, y: 255}, 20, 80));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 110, y: game.world.height - 175}, 20, 80));
 
-		this.walls.push(new MapObject(game, 'wall', {x: 230, y: 175}, 120, 60));
+		this.walls.push(new MapObject(game, 'wall', {x: 230, y: 255}, 120, 60));
 		this.walls.push(new MapObject(game, 'wall', {x: 230, y: game.world.height - 175}, 120, 60));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: 175}, 120, 60));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: 255}, 120, 60));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 230, y: game.world.height - 175}, 120, 60));
 
 		return this;
@@ -486,53 +495,53 @@ Maps = function(game) {
 
 	this.map3 = function (game) {
 		this.spawnPoints = [
-			{x: game.world.width / 2, y: 0, angle: 180},
-			{x: game.world.width / 2, y: game.world.height - 0, angle: 0},
-			{x: 0, y: game.world.height / 2, angle: 90},
-			{x: game.world.width - 0, y: game.world.height / 2, angle: 270},
-			{x: 20, y: 50, angle: 90},
-			{x: game.world.width - 20, y: 50, angle: -90},
+			{x: game.world.width / 2, y: 80, angle: 180},
+			{x: game.world.width / 2, y: game.world.height, angle: 0},
+			{x: 0, y: game.world.height / 2 + 40, angle: 90},
+			{x: game.world.width, y: game.world.height / 2 + 40, angle: 270},
+			{x: 20, y: 130, angle: 90},
+			{x: game.world.width - 20, y: 130, angle: -90},
 			{x: 20, y: game.world.height - 50, angle: 90},
 			{x: game.world.width - 20, y: game.world.height - 50, angle: -90}
 		];
 
 		this.walls = [];
-		this.walls.push(new MapObject(game, 'wall', {x: 180, y: 10}, 360, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 180, y: 10}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 180, y: 90}, 360, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 180, y: 90}, 360, 20));
 		this.walls.push(new MapObject(game, 'wall', {x: 180, y: game.world.height - 10}, 360, 20));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 180, y: game.world.height - 10}, 360, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: 10, y: 160}, 20, 200));
+		this.walls.push(new MapObject(game, 'wall', {x: 10, y: 240}, 20, 200));
 		this.walls.push(new MapObject(game, 'wall', {x: 10, y: game.world.height - 160}, 20, 200));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 10, y: 160}, 20, 200));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 10, y: 240}, 20, 200));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 10, y: game.world.height - 160}, 20, 200));
 
-		this.walls.push(new MapObject(game, 'wall', {x: 310, y: 120}, 100, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: 170, y: 120}, 80, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 310, y: 120}, 100, 20));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width -170, y: 120}, 80, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 310, y: 200}, 100, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: 170, y: 200}, 80, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 310, y: 200}, 100, 20));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width -170, y: 200}, 80, 20));
 		this.walls.push(new MapObject(game, 'wall', {x: 310, y: game.world.height - 120}, 100, 20));
 		this.walls.push(new MapObject(game, 'wall', {x: 170, y: game.world.height - 120}, 80, 20));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 310, y: game.world.height - 120}, 100, 20));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width -170, y: game.world.height - 120}, 80, 20));
 
-		this.walls.push(new MapObject(game, 'wall', {x: 120, y: 185}, 20, 150));
+		this.walls.push(new MapObject(game, 'wall', {x: 120, y: 265}, 20, 150));
 		this.walls.push(new MapObject(game, 'wall', {x: 120, y: game.world.height - 185}, 20, 150));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 120, y: 185}, 20, 150));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 120, y: 265}, 20, 150));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 120, y: game.world.height - 185}, 20, 150));
 
-		this.walls.push(new MapObject(game, 'wall', {x: 200, y: 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: 200, y: 290}, 20, 100));
 		this.walls.push(new MapObject(game, 'wall', {x: 200, y: game.world.height - 210}, 20, 100));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 200, y: 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 200, y: 290}, 20, 100));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 200, y: game.world.height - 210}, 20, 100));
 
-		this.walls.push(new MapObject(game, 'wall', {x: 270, y: 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: 270, y: 290}, 20, 100));
 		this.walls.push(new MapObject(game, 'wall', {x: 270, y: game.world.height - 210}, 20, 100));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 270, y: 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 270, y: 290}, 20, 100));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 270, y: game.world.height - 210}, 20, 100));
 
-		this.walls.push(new MapObject(game, 'wall', {x: 350, y: 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: 350, y: 290}, 20, 100));
 		this.walls.push(new MapObject(game, 'wall', {x: 350, y: game.world.height - 210}, 20, 100));
-		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: 210}, 20, 100));
+		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: 290}, 20, 100));
 		this.walls.push(new MapObject(game, 'wall', {x: game.world.width - 350, y: game.world.height - 210}, 20, 100));
 
 		return this;
@@ -640,7 +649,7 @@ var PlayScene = {
 		}
 
 		// PLAYER
-		this.player = new Player(this.game, {x: this.game.world.width / 2, y: this.game.world.height / 2});
+		this.player = new Player(this.game, {x: this.game.world.width / 2, y: this.game.world.height / 2 + 40});
 		this.game.add.existing(this.player);
 
 		// ZOMBIES
@@ -670,15 +679,25 @@ var PlayScene = {
 	},
 
 	unpause: function(event) {
-		if (PlayScene.game.paused && event.y > 440 && event.y < 500) {
+		if (PlayScene.game.paused && event.y > 455 && event.y < 515) {
 			// Continue button
-			if(event.x > 130 && event.x < 340) {
+			if(event.x > 120 && event.x < 335) {
 				PlayScene.pauseMenu.destroy();
 				PlayScene.game.paused = false;
 			}
 
+			// Change map button
+			if(event.x > 465 && event.x < 675) {
+				PlayScene.player.heartbeatSound.stop();
+				PlayScene.game.state.states.play.music.stop();
+				PlayScene.game.state.start('mapsMenu', true, false);
+				PlayScene.game.paused = false;
+			}
+		}
+		
+		if (PlayScene.game.paused && event.y > 535 && event.y < 595) {
 			// Menu button
-			if(event.x > 480 && event.x < 680) {
+			if(event.x > 300 && event.x < 500) {
 				PlayScene.player.heartbeatSound.stop();
 				PlayScene.game.state.states.play.music.stop();
 				PlayScene.game.state.start('menu', true, false);
@@ -720,29 +739,28 @@ var PlayScene = {
 		// Pause menu
 		if (this.game.input.keyboard.isDown(Phaser.Keyboard.ESC)) {
 			this.game.paused = true;
-			this.pauseMenu = this.game.add.sprite(this.game.world.width/2, this.game.world.height/2, 'pauseMenu');
+			this.pauseMenu = this.game.add.sprite(this.game.world.width / 2, this.game.world.height / 2 + 40, 'pauseMenu');
 			this.pauseMenu.anchor.setTo(0.5, 0.5);
 		}
 	}, 
 
 	// INTERFAZ
 	render: function () {
+		// BACKGROUND
+		this.game.debug.geom(new Phaser.Rectangle(0, 0, 800, 80), 'rgba(0, 0, 153)');
+		this.game.debug.geom(new Phaser.Rectangle(10, 10, 780, 60), 'rgba(77, 77, 255)');
+		
 		// HEALTHBAR
-		var healthBG = new Phaser.Rectangle(20, 20, 320, 50);
-		this.game.debug.geom(healthBG, 'rgba(0, 0, 0, 0.2)') ;
-		var health = new Phaser.Rectangle(30,30,this.player._currentHealth*3,30);
-		this.game.debug.geom( health, 'rgba(255, 0, 0, 0.8)' ) ;
-		this.game.debug.text( "HEALTH: " + this.player._currentHealth, 40, 50, 'rgba(0, 0, 0, 1)' );
+		this.game.debug.geom(new Phaser.Rectangle(20, 20, this.player._currentHealth * 3, 40), 'rgba(255, 0, 0, 0.8)');
+		this.game.debug.text("HEALTH: " + this.player._currentHealth, 30, 45, 'rgba(0, 0, 0, 1)', '20px Courier');
 
 		// WEAPON AND AMMO
-		var weaponBG = new Phaser.Rectangle(20, this.game.world.height-60, 160, 40);
-		this.game.debug.geom(weaponBG, 'rgba(255, 215, 0, 0.5)') ;
-		this.game.debug.text( "WEAPON: " + this.player.weapons[this.player.currentWeapon].name, 25, this.game.world.height - 43, 'rgba(0,0,0,1)' );
-		this.game.debug.text( "AMMO: " + this.player.weapons[this.player.currentWeapon].ammo, 25, this.game.world.height - 25, 'rgba(0,0,0,1)' );
+		this.game.debug.text( "WEAPON: " + this.player.weapons[this.player.currentWeapon].name, 600, 35, 'rgba(0,0,0)', '20px Courier' );
+		this.game.debug.text( "AMMO: " + this.player.weapons[this.player.currentWeapon].ammo, 600, 55, 'rgba(0,0,0)', '20px Courier' );
 
 		// LEVEL AND SCORE
-		this.game.debug.text( "LEVEL: " + this.level, this.game.world.width - 220, 15, 'rgba(255, 255, 255, 1)' );
-		this.game.debug.text( "SCORE: " + this.score, this.game.world.width - 120, 15, 'rgba(255, 255, 255, 1)' );
+		this.game.debug.text( "LEVEL: " + this.level, 350, 35, 'rgba(255, 255, 255)', '20px Courier' );
+		this.game.debug.text( "SCORE: " + this.score, 350, 55, 'rgba(255, 255, 255)', '20px Courier' );
 	},
 
 	nextLevel: function() {
