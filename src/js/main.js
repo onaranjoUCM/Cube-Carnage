@@ -158,9 +158,11 @@ var NameMenu = {
 	create: function () {
 		this.playerName = '';
 		this.title = this.game.add.text(this.game.world.centerX, 200, 'Write your name', {font: '40px Arial', fill: '#000000'});
-		this.pressEnter = this.game.add.text(this.game.world.centerX, 550, 'Press Enter to continue', {font: '20px Arial', fill: '#000000'});
-		this.textbox = this.game.add.text(330, 300, '', {font: '20px Arial', fill: '#000000'});
+		this.pressBackspace = this.game.add.text(this.game.world.centerX, 500, 'Press Backspace to reset', {font: '20px Arial', fill: '#000000'});
+		this.pressEnter = this.game.add.text(this.game.world.centerX, 530, 'Press Enter to continue', {font: '20px Arial', fill: '#000000'});
+		this.textbox = this.game.add.text(350, 300, 'John Cubick', {font: '20px Arial', fill: '#999999'});
 		this.title.anchor.setTo(0.5);
+		this.pressBackspace.anchor.setTo(0.5);
 		this.pressEnter.anchor.setTo(0.5);
 
 		this.game.input.keyboard.addCallbacks(this, null, null, this.keyPress);
@@ -177,15 +179,21 @@ var NameMenu = {
 		}
 
 		if (NameMenu.playerName.length <= 12) {
+			NameMenu.textbox.fill = '#000000';
 			NameMenu.playerName += char;
 			NameMenu.textbox.text = NameMenu.playerName;
 		}
 	},
 
 	update: function() {
-		if (this.game.input.keyboard.isDown(Phaser.Keyboard.BACKSPACE) && this.game.state.current == "nameMenu"){
-			console.log("aids");
+		if (this.game.input.keyboard.isDown(Phaser.Keyboard.BACKSPACE) && this.game.state.current == "nameMenu") {
+			NameMenu.playerName = '';
+			NameMenu.textbox.text = NameMenu.playerName;
 		}
+	},
+	
+	render: function() {
+		//this.game.debug.geom(new Phaser.Rectangle(300, 320, 200, 1), 'rgba(0, 0, 0)');
 	}
 };
 
