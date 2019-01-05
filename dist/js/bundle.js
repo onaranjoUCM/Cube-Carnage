@@ -274,7 +274,6 @@ var MenuScene = {
 		this.music = this.game.add.audio('menuMusic');
 		this.music.volume = 0.01;
 		this.music.loop = true;
-		this.music.onDecoded.add(this.playMusic, this);
 	},
 	
 	start: function() {
@@ -282,12 +281,7 @@ var MenuScene = {
 	},
 	
 	controls: function() {
-		this.music.stop();
 		this.game.state.start('controls', true, false, 0);
-	},
-	
-	playMusic: function() {
-		this.music.play();
 	}
 };
 
@@ -320,6 +314,7 @@ var NameMenu = {
 		this.pressEnter.anchor.setTo(0.5);
 
 		this.game.input.keyboard.addCallbacks(this, null, null, this.keyPress);
+		MenuScene.music.play();
 	},
 
 	keyPress: function(char) {
@@ -344,10 +339,6 @@ var NameMenu = {
 			NameMenu.playerName = '';
 			NameMenu.textbox.text = NameMenu.playerName;
 		}
-	},
-	
-	render: function() {
-		//this.game.debug.geom(new Phaser.Rectangle(300, 320, 200, 1), 'rgba(0, 0, 0)');
 	}
 };
 
