@@ -65,6 +65,7 @@ var MenuScene = {
 		// Button sprites
 		this.game.load.spritesheet('playButton', 'images/menus/playButton.png', 260, 80);
 		this.game.load.spritesheet('backButton', 'images/menus/backButton.png', 161, 60);
+		this.game.load.spritesheet('controlsButton', 'images/menus/controlsButton.png', 181, 60);
 		this.game.load.spritesheet('map1button', 'images/menus/map1button.png', 208, 58);
 		this.game.load.spritesheet('map2button', 'images/menus/map2button.png', 208, 58);
 		this.game.load.spritesheet('map3button', 'images/menus/map3button.png', 208, 58);
@@ -114,7 +115,7 @@ var MenuScene = {
 		this.game.add.sprite(-40,570, 'logo');
 
 		this.game.add.button(530, 520, 'playButton', this.start, this, 2, 0, 1);
-		this.game.add.button(630, 610, 'backButton', this.controls, this, 2, 0, 1);
+		this.game.add.button(610, 610, 'controlsButton', this.controls, this, 2, 0, 1);
 
 		this.music = this.game.add.audio('menuMusic');
 		this.music.volume = 0.01;

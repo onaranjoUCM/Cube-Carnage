@@ -68,15 +68,25 @@ var PlayScene = {
 	},
 
 	unpause: function(event) {
-		if (PlayScene.game.paused && event.y > 440 && event.y < 500) {
+		if (PlayScene.game.paused && event.y > 455 && event.y < 515) {
 			// Continue button
-			if(event.x > 130 && event.x < 340) {
+			if(event.x > 120 && event.x < 335) {
 				PlayScene.pauseMenu.destroy();
 				PlayScene.game.paused = false;
 			}
 
+			// Change map button
+			if(event.x > 465 && event.x < 675) {
+				PlayScene.player.heartbeatSound.stop();
+				PlayScene.game.state.states.play.music.stop();
+				PlayScene.game.state.start('mapsMenu', true, false);
+				PlayScene.game.paused = false;
+			}
+		}
+		
+		if (PlayScene.game.paused && event.y > 535 && event.y < 595) {
 			// Menu button
-			if(event.x > 480 && event.x < 680) {
+			if(event.x > 300 && event.x < 500) {
 				PlayScene.player.heartbeatSound.stop();
 				PlayScene.game.state.states.play.music.stop();
 				PlayScene.game.state.start('menu', true, false);
@@ -118,7 +128,7 @@ var PlayScene = {
 		// Pause menu
 		if (this.game.input.keyboard.isDown(Phaser.Keyboard.ESC)) {
 			this.game.paused = true;
-			this.pauseMenu = this.game.add.sprite(this.game.world.width/2, this.game.world.height/2, 'pauseMenu');
+			this.pauseMenu = this.game.add.sprite(this.game.world.width / 2, this.game.world.height / 2 + 40, 'pauseMenu');
 			this.pauseMenu.anchor.setTo(0.5, 0.5);
 		}
 	}, 
