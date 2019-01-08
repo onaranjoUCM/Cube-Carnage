@@ -8,7 +8,7 @@ Weapon.pistol = function (game) {
 
 	this.name = "Pistol";
 	this.sound = game.add.audio('pistolShot');
-	this.sound.volume = 0.005;
+	this.sound.volume = 0.05;
 	this.nextFire = 0;
 	this.bulletSpeed = 600;
 	this.fireRate = 500;
@@ -51,7 +51,7 @@ Weapon.rifle = function (game) {
 
 	this.name = "Rifle";
 	this.sound = game.add.audio('pistolShot');
-	this.sound.volume = 0.005;
+	this.sound.volume = 0.05;
 	this.nextFire = 0;
 	this.bulletSpeed = 1000;
 	this.fireRate = 100;
@@ -94,7 +94,7 @@ Weapon.shotgun = function (game) {
 
 	this.name = "Shotgun";
 	this.sound = game.add.audio('shotgun');
-	this.sound.volume = 0.005;
+	this.sound.volume = 0.05;
 	this.nextFire = 0;
 	this.bulletSpeed = 1000;
 	this.fireRate = 1000;

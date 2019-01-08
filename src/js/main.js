@@ -118,7 +118,7 @@ var MenuScene = {
 		this.game.add.button(610, 610, 'controlsButton', this.controls, this, 2, 0, 1);
 
 		this.music = this.game.add.audio('menuMusic');
-		this.music.volume = 0.01;
+		this.music.volume = 0.1;
 		this.music.loop = true;
 	},
 	

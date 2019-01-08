@@ -21,7 +21,7 @@ Medikit = function Medikit(game, position, player) {
 	
 	this.player = player;
 	this.sound = game.add.audio('heal');
-	this.sound.volume = 0.01;
+	this.sound.volume = 0.1;
 }
 
 Medikit.prototype = Object.create(MapObject.prototype);
@@ -43,7 +43,7 @@ AmmoCrate = function AmmoCrate(game, position, player) {
 	
 	this.player = player;
 	this.sound = game.add.audio('switchWeapon');
-	this.sound.volume = 0.01;
+	this.sound.volume = 0.1;
 }
 
 AmmoCrate.prototype = Object.create(MapObject.prototype);

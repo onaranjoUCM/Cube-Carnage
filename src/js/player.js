@@ -12,10 +12,10 @@ Player = function Player(game, position) {
 	];
 	this.currentWeapon = 0;
 	this.switchWeaponSound = game.add.audio('switchWeapon');
-	this.switchWeaponSound.volume = 0.01;
+	this.switchWeaponSound.volume = 0.1;
 	this.heartbeatSound = game.add.audio('heartbeat');
 	this.heartbeatSound.loop = true;
-	this.heartbeatSound.volume = 0.1;
+	this.heartbeatSound.volume = 1;
 
 	this.scale.setTo(0.075);
 	this.frame = 0;
